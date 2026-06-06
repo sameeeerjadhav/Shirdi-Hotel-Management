@@ -314,6 +314,30 @@
         .fade-in { animation: fadeUp 0.3s ease both; }
         .fade-in-2 { animation: fadeUp 0.3s 0.05s ease both; }
         .fade-in-3 { animation: fadeUp 0.3s 0.1s ease both; }
+
+        /* Toast Notifications */
+        #toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; }
+        .toast-item { display:flex; align-items:center; gap:12px; padding:14px 18px; border-radius:12px; background:white; box-shadow:0 8px 32px rgba(0,0,0,0.12); border-left:4px solid; min-width:300px; animation:slideInRight 0.3s ease; font-size:14px; font-weight:500; color:#1e293b; }
+        .toast-item.success { border-color:#10b981; }
+        .toast-item.error   { border-color:#ef4444; }
+        .toast-item.warning { border-color:#f59e0b; }
+        .toast-item.info    { border-color:#3b82f6; }
+        @keyframes slideInRight { from { opacity:0; transform:translateX(60px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes slideOut { from { opacity:1; } to { opacity:0; transform:translateX(60px); } }
+
+        /* Notification Bell */
+        .notif-bell { position:relative; cursor:pointer; }
+        .notif-badge { position:absolute; top:-4px; right:-4px; background:#ef4444; color:white; border-radius:99px; font-size:10px; font-weight:700; padding:1px 5px; min-width:16px; text-align:center; display:none; }
+        .notif-badge.has-unread { display:block; }
+        .notif-drawer { position:fixed; top:0; right:-380px; width:360px; height:100vh; background:white; box-shadow:-8px 0 40px rgba(0,0,0,0.1); z-index:1000; transition:right 0.3s ease; overflow-y:auto; }
+        .notif-drawer.open { right:0; }
+        .notif-item { padding:14px 20px; border-bottom:1px solid #f1f5f9; cursor:pointer; transition:background 0.15s; }
+        .notif-item:hover { background:#f8fafc; }
+        .notif-item.unread { background:#eff6ff; }
+
+        /* Skeleton */
+        .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 6px; }
+        @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body>
@@ -326,24 +350,36 @@
         <div class="logo-text">CH<span>NMS</span></div>
     </div>
 
+    <?php
+    $curPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $isActive = fn($p) => (str_starts_with($curPath, $p)) ? 'active' : '';
+    ?>
     <?php if ($_SESSION['role_id'] == 1): // Super Admin ?>
     <div class="sidebar-section">Main</div>
     <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link active" href="<?= BASE_URL ?>/admin/dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/hotels"><i class="fa-solid fa-building"></i> Hotels</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/bookings"><i class="fa-solid fa-calendar-check"></i> Bookings</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/dashboard') ?>" href="<?= BASE_URL ?>/admin/dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
     </ul>
-    <div class="sidebar-section">Management</div>
+    <div class="sidebar-section">Operations</div>
     <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/finance"><i class="fa-solid fa-chart-line"></i> Finance</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/search"><i class="fa-solid fa-magnifying-glass"></i> Room Search</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/hotels') ?>" href="<?= BASE_URL ?>/admin/hotels"><i class="fa-solid fa-building"></i> Hotels</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/bookings') ?>" href="<?= BASE_URL ?>/admin/bookings"><i class="fa-solid fa-calendar-check"></i> Bookings</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/room-monitor') ?>" href="<?= BASE_URL ?>/admin/room-monitor"><i class="fa-solid fa-hotel"></i> Room Monitor</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/transfers') ?>" href="<?= BASE_URL ?>/admin/transfers"><i class="fa-solid fa-right-left"></i> Transfers <?php if(isset($pendingTransfers) && $pendingTransfers > 0): ?><span style="background:#ef4444;color:white;border-radius:99px;font-size:10px;padding:1px 6px;margin-left:4px;font-weight:700;"><?= $pendingTransfers ?></span><?php endif; ?></a></li>
+    </ul>
+    <div class="sidebar-section">Finance</div>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/finance') ?>" href="<?= BASE_URL ?>/admin/finance"><i class="fa-solid fa-chart-line"></i> Finance</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/search') ?>" href="<?= BASE_URL ?>/admin/search"><i class="fa-solid fa-magnifying-glass"></i> Room Search</a></li>
     </ul>
     <?php elseif ($_SESSION['role_id'] == 2): // Hotel Admin ?>
     <div class="sidebar-section">Main</div>
     <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link active" href="<?= BASE_URL ?>/hotel/dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/hotel/rooms"><i class="fa-solid fa-bed"></i> Rooms</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/hotel/bookings"><i class="fa-solid fa-calendar-check"></i> Bookings</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/hotel/dashboard') ?>" href="<?= BASE_URL ?>/hotel/dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
+    </ul>
+    <div class="sidebar-section">Operations</div>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link <?= $isActive('/hotel/rooms') ?>" href="<?= BASE_URL ?>/hotel/rooms"><i class="fa-solid fa-bed"></i> Rooms</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/hotel/bookings') ?>" href="<?= BASE_URL ?>/hotel/bookings"><i class="fa-solid fa-calendar-check"></i> Bookings</a></li>
     </ul>
     <?php endif; ?>
 
@@ -359,11 +395,23 @@
             <div class="topbar-title"><?= htmlspecialchars($title ?? 'Dashboard') ?></div>
             <div class="topbar-subtitle"><?= date('l, d F Y') ?></div>
         </div>
-        <div class="user-chip">
-            <div class="avatar"><?= strtoupper(substr($_SESSION['name'], 0, 1)) ?></div>
-            <div>
-                <div class="user-chip-name"><?= htmlspecialchars($_SESSION['name']) ?></div>
-                <div class="user-chip-role"><?= $_SESSION['role_id'] == 1 ? 'Super Admin' : 'Hotel Admin' ?></div>
+        <div style="display:flex;align-items:center;gap:16px;">
+            <!-- Dark Mode Toggle -->
+            <button id="darkToggle" onclick="toggleDark()" style="background:#f1f5f9;border:none;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;" title="Toggle Dark Mode">🌙</button>
+            <!-- Notification Bell -->
+            <div class="notif-bell" onclick="toggleNotifDrawer()">
+                <div style="width:36px;height:36px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-regular fa-bell" style="font-size:16px;color:#64748b;"></i>
+                </div>
+                <span class="notif-badge <?= isset($unreadCount) && $unreadCount > 0 ? 'has-unread' : '' ?>" id="notifBadge"><?= $unreadCount ?? 0 ?></span>
+            </div>
+            <div class="user-chip">
+                <div class="avatar"><?= strtoupper(substr($_SESSION['name'], 0, 1)) ?></div>
+                <div>
+                    <div class="user-chip-name"><?= htmlspecialchars($_SESSION['name']) ?></div>
+                    <div class="user-chip-role"><?= $_SESSION['role_id'] == 1 ? 'Super Admin' : ($_SESSION['hotel_name'] ?? 'Hotel Admin') ?></div>
+                </div>
+                <i class="fa-solid fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
             </div>
         </div>
     </div>
@@ -392,6 +440,108 @@
 </div>
 <?php endif; ?>
 
+<!-- Notification Drawer -->
+<div class="notif-drawer" id="notifDrawer">
+    <div style="padding:20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:16px;font-weight:800;color:#1e293b;">Notifications</div>
+        <div style="display:flex;gap:8px;">
+            <button onclick="markAllRead()" style="font-size:12px;font-weight:600;color:#4338ca;background:none;border:none;cursor:pointer;">Mark all read</button>
+            <button onclick="toggleNotifDrawer()" style="background:none;border:none;font-size:18px;color:#64748b;cursor:pointer;">✕</button>
+        </div>
+    </div>
+    <div id="notifList" style="padding:0;"><div style="padding:32px;text-align:center;color:#94a3b8;">Loading...</div></div>
+</div>
+<div id="notifOverlay" onclick="toggleNotifDrawer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.2);z-index:999;"></div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const BASE_URL = '<?= BASE_URL ?>';
+
+// ---- Toast System ----
+function showToast(msg, type = 'info') {
+    const icons = {success:'✓', error:'✕', warning:'⚠', info:'ℹ'};
+    const t = document.createElement('div');
+    t.className = 'toast-item ' + type;
+    t.innerHTML = `<span style="font-size:16px;">${icons[type]||'ℹ'}</span> ${msg}`;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => { t.style.animation='slideOut 0.3s ease forwards'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+// ---- Dark Mode ----
+function toggleDark() {
+    document.documentElement.classList.toggle('dark-mode');
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark);
+    document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
+}
+if (localStorage.getItem('darkMode') === 'true') {
+    document.documentElement.classList.add('dark-mode');
+    document.getElementById('darkToggle').textContent = '☀️';
+}
+
+// ---- Notifications ----
+let notifOpen = false;
+async function loadNotifications() {
+    const res  = await fetch(BASE_URL + '/api/notifications');
+    const data = await res.json();
+    const badge = document.getElementById('notifBadge');
+    if (badge) {
+        badge.textContent = data.unread;
+        badge.classList.toggle('has-unread', data.unread > 0);
+    }
+    const list = document.getElementById('notifList');
+    if (!list) return;
+    if (!data.notifications || data.notifications.length === 0) {
+        list.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">🔔 No notifications yet</div>';
+        return;
+    }
+    const icons = {booking_created:'📋',payment_received:'💰',hotel_approved:'✅',transfer_request:'↔️',checkin:'🔑',checkout:'🚪'};
+    list.innerHTML = data.notifications.map(n => `
+        <div class="notif-item ${n.is_read == 0 ? 'unread' : ''}" onclick="readNotif(${n.id},'${n.link || ''}')">
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+                <span style="font-size:20px;flex-shrink:0;">${icons[n.type]||'🔔'}</span>
+                <div>
+                    <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:2px;">${n.title}</div>
+                    <div style="font-size:12px;color:#64748b;">${n.message||''}</div>
+                    <div style="font-size:11px;color:#94a3b8;margin-top:4px;">${new Date(n.created_at).toLocaleString('en-IN')}</div>
+                </div>
+            </div>
+        </div>`).join('');
+}
+
+async function readNotif(id, link) {
+    await fetch(`${BASE_URL}/api/notifications/${id}/read`, {method:'POST'});
+    if (link) window.location.href = BASE_URL + link;
+    else loadNotifications();
+}
+
+async function markAllRead() {
+    await fetch(`${BASE_URL}/api/notifications/read-all`, {method:'POST'});
+    loadNotifications();
+}
+
+function toggleNotifDrawer() {
+    notifOpen = !notifOpen;
+    document.getElementById('notifDrawer').classList.toggle('open', notifOpen);
+    document.getElementById('notifOverlay').style.display = notifOpen ? 'block' : 'none';
+    if (notifOpen) loadNotifications();
+}
+
+// Poll notifications every 30 seconds
+if (document.getElementById('notifBadge')) {
+    setInterval(loadNotifications, 30000);
+}
+
+// ---- Show PHP flash messages as toast ----
+<?php if(isset($_SESSION['success'])): ?>
+showToast(<?= json_encode($_SESSION['success']) ?>, 'success');
+<?php unset($_SESSION['success']); endif; ?>
+<?php if(isset($_SESSION['error'])): ?>
+showToast(<?= json_encode($_SESSION['error']) ?>, 'error');
+<?php unset($_SESSION['error']); endif; ?>
+</script>
 </body>
 </html>

@@ -3,58 +3,327 @@
 namespace App\Controllers;
 
 use Core\Controller;
-// use App\Models\Hotel;
-// use App\Models\Booking;
+use App\Models\Hotel;
+use App\Models\Room;
+use App\Models\Booking;
+use App\Models\Notification;
+use App\Models\Transfer;
+use App\Models\AuditLog;
+use App\Models\User;
+use App\Middleware\CsrfMiddleware;
+use App\Utils\Sanitizer;
+use App\Services\NotificationService;
 
 class AdminController extends Controller {
+
+    private Hotel $hotelModel;
+    private Room $roomModel;
+    private Booking $bookingModel;
+    private Notification $notifModel;
+    private Transfer $transferModel;
+
     public function __construct() {
-        // Protect this controller
         if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
             $this->redirect('/login');
         }
+        $this->hotelModel    = new Hotel();
+        $this->roomModel     = new Room();
+        $this->bookingModel  = new Booking();
+        $this->notifModel    = new Notification();
+        $this->transferModel = new Transfer();
     }
 
+    // =============================================
+    // DASHBOARD
+    // =============================================
     public function dashboard() {
-        // We will fetch real stats here later
-        $stats = [
-            'total_hotels' => 5,
-            'total_rooms' => 150,
-            'occupied_rooms' => 80,
-            'revenue' => 45000.00
-        ];
+        $stats        = $this->hotelModel->getNetworkStats();
+        $recentHotels = $this->hotelModel->allWithAdmin('pending');
+        $recentBooks  = $this->bookingModel->allWithDetails(['limit' => 5]);
+        $revenue      = $this->bookingModel->getRevenueSummary(null, 30);
+        $dailyRevenue = $this->bookingModel->getDailyRevenue(null, 30);
+        $pendingTransfers = $this->transferModel->countPending();
+        $unreadCount  = $this->notifModel->unreadCount($_SESSION['user_id']);
 
         return $this->view('admin/dashboard', [
-            'title' => 'Admin Dashboard - CHNMS',
-            'stats' => $stats
+            'title'            => 'Admin Dashboard - CHNMS',
+            'stats'            => $stats,
+            'recentHotels'     => $recentHotels,
+            'recentBooks'      => $recentBooks,
+            'revenue'          => $revenue,
+            'dailyRevenue'     => json_encode($dailyRevenue),
+            'pendingTransfers' => $pendingTransfers,
+            'unreadCount'      => $unreadCount,
         ]);
     }
 
+    // =============================================
+    // HOTELS MODULE
+    // =============================================
     public function hotels() {
-        $hotels = [
-            ['id' => 1, 'name' => 'Grand Plaza Hotel', 'city' => 'Mumbai', 'email' => 'grand.plaza@chnms.com', 'status' => 'Pending', 'rooms' => 45],
-            ['id' => 2, 'name' => 'Sea View Resort', 'city' => 'Goa', 'email' => 'seaview@chnms.com', 'status' => 'Active', 'rooms' => 120],
-            ['id' => 3, 'name' => 'Mountain Retreat', 'city' => 'Shimla', 'email' => 'retreat@chnms.com', 'status' => 'Active', 'rooms' => 35],
-        ];
-        return $this->view('admin/hotels', ['title' => 'Hotels - CHNMS', 'hotels' => $hotels]);
+        $status = Sanitizer::clean($_GET['status'] ?? '');
+        $search = Sanitizer::clean($_GET['search'] ?? '');
+
+        if ($search) {
+            $hotels = $this->hotelModel->search($search, $status ?: null);
+        } else {
+            $hotels = $this->hotelModel->allWithAdmin($status ?: null);
+        }
+
+        $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
+
+        return $this->view('admin/hotels', [
+            'title'      => 'Hotel Management - CHNMS',
+            'hotels'     => $hotels,
+            'status'     => $status,
+            'search'     => $search,
+            'unreadCount'=> $unreadCount,
+        ]);
     }
 
+    public function hotelDetail($id) {
+        $hotel   = $this->hotelModel->getWithDetails($id);
+        if (!$hotel) { $_SESSION['error'] = 'Hotel not found.'; $this->redirect('/admin/hotels'); }
+        $stats   = $this->hotelModel->getHotelStats($id);
+        $rooms   = $this->roomModel->byHotel($id);
+        $bookings= $this->bookingModel->allWithDetails(['hotel_id' => $id, 'limit' => 10]);
+
+        return $this->view('admin/hotel_detail', [
+            'title'   => $hotel['name'] . ' - CHNMS',
+            'hotel'   => $hotel,
+            'stats'   => $stats,
+            'rooms'   => $rooms,
+            'bookings'=> $bookings,
+        ]);
+    }
+
+    public function addHotelForm() {
+        return $this->view('admin/hotel_form', [
+            'title'  => 'Add Hotel - CHNMS',
+            'hotel'  => null,
+            'action' => 'add',
+        ]);
+    }
+
+    public function storeHotel() {
+        CsrfMiddleware::verify();
+
+        $data   = Sanitizer::cleanPost(['name','email','phone','owner_name','address','city','state','zip','gst_number','pan_number','bank_name','bank_account','bank_ifsc','star_rating','commission_rate','description']);
+        $errors = Sanitizer::validate($data, ['name'=>'required','email'=>'required|email','city'=>'required']);
+
+        // Create hotel admin user
+        $userEmail    = $data['email'];
+        $userModel    = new User();
+        $existingUser = $userModel->findByEmail($userEmail);
+
+        if ($existingUser) {
+            $adminUserId = $existingUser['id'];
+        } else {
+            $tempPass    = bin2hex(random_bytes(6));
+            $adminUserId = $userModel->create([
+                'role_id'       => 2,
+                'name'          => $data['owner_name'] ?: $data['name'],
+                'email'         => $userEmail,
+                'password_hash' => password_hash($tempPass, PASSWORD_DEFAULT),
+                'phone'         => $data['phone'],
+            ]);
+        }
+
+        $data['admin_user_id'] = $adminUserId;
+        $data['status']        = 'pending';
+        $hotelId               = $this->hotelModel->create($data);
+
+        // Update user's hotel_id
+        $userModel->update($adminUserId, ['hotel_id' => $hotelId]);
+
+        AuditLog::record('hotel_created', 'Hotel', $hotelId, null, $data);
+        $_SESSION['success'] = 'Hotel added successfully and is pending approval.';
+        $this->redirect('/admin/hotels');
+    }
+
+    public function editHotelForm($id) {
+        $hotel = $this->hotelModel->getWithDetails($id);
+        if (!$hotel) { $_SESSION['error'] = 'Hotel not found.'; $this->redirect('/admin/hotels'); }
+        return $this->view('admin/hotel_form', [
+            'title'  => 'Edit Hotel - CHNMS',
+            'hotel'  => $hotel,
+            'action' => 'edit',
+        ]);
+    }
+
+    public function updateHotel($id) {
+        CsrfMiddleware::verify();
+        $old  = $this->hotelModel->find($id);
+        $data = Sanitizer::cleanPost(['name','email','phone','owner_name','address','city','state','zip','gst_number','pan_number','bank_name','bank_account','bank_ifsc','star_rating','commission_rate','description']);
+        $this->hotelModel->update($id, $data);
+        AuditLog::record('hotel_updated', 'Hotel', $id, $old, $data);
+        $_SESSION['success'] = 'Hotel updated successfully.';
+        $this->redirect('/admin/hotels/' . $id);
+    }
+
+    public function approveHotel($id) {
+        CsrfMiddleware::verify();
+        $hotel = $this->hotelModel->getWithDetails($id);
+        $this->hotelModel->approve($id);
+        $notif = new NotificationService();
+        $notif->hotelApproved($hotel, $hotel['admin_user_id']);
+        AuditLog::record('hotel_approved', 'Hotel', $id);
+        $this->json(['success' => true, 'message' => 'Hotel approved.']);
+    }
+
+    public function rejectHotel($id) {
+        CsrfMiddleware::verify();
+        $this->hotelModel->reject($id);
+        AuditLog::record('hotel_rejected', 'Hotel', $id);
+        $this->json(['success' => true, 'message' => 'Hotel rejected.']);
+    }
+
+    public function suspendHotel($id) {
+        CsrfMiddleware::verify();
+        $this->hotelModel->suspend($id);
+        AuditLog::record('hotel_suspended', 'Hotel', $id);
+        $this->json(['success' => true, 'message' => 'Hotel suspended.']);
+    }
+
+    public function deleteHotel($id) {
+        CsrfMiddleware::verify();
+        $this->hotelModel->delete($id);
+        AuditLog::record('hotel_deleted', 'Hotel', $id);
+        $_SESSION['success'] = 'Hotel deleted.';
+        $this->redirect('/admin/hotels');
+    }
+
+    // =============================================
+    // BOOKINGS MODULE
+    // =============================================
     public function bookings() {
-        $bookings = [
-            ['id' => 'BKG-001', 'guest' => 'Raj Sharma', 'hotel' => 'Sea View Resort', 'checkin' => '2026-06-10', 'checkout' => '2026-06-12', 'amount' => 15000, 'status' => 'Confirmed'],
-            ['id' => 'BKG-002', 'guest' => 'Anita Desai', 'hotel' => 'Grand Plaza Hotel', 'checkin' => '2026-06-15', 'checkout' => '2026-06-16', 'amount' => 2500, 'status' => 'Pending'],
-            ['id' => 'BKG-003', 'guest' => 'Vikram Singh', 'hotel' => 'Mountain Retreat', 'checkin' => '2026-06-05', 'checkout' => '2026-06-08', 'amount' => 12000, 'status' => 'Completed'],
+        $filters = [
+            'status'    => Sanitizer::clean($_GET['status'] ?? ''),
+            'search'    => Sanitizer::clean($_GET['search'] ?? ''),
+            'date_from' => Sanitizer::date($_GET['date_from'] ?? '') ?: null,
+            'date_to'   => Sanitizer::date($_GET['date_to'] ?? '') ?: null,
+            'limit'     => 25,
+            'offset'    => (max(1, (int)($_GET['page'] ?? 1)) - 1) * 25,
         ];
-        return $this->view('admin/bookings', ['title' => 'Bookings - CHNMS', 'bookings' => $bookings]);
+        $bookings = $this->bookingModel->allWithDetails($filters);
+        $revenue  = $this->bookingModel->getRevenueSummary();
+        $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
+
+        return $this->view('admin/bookings', [
+            'title'      => 'Bookings - CHNMS',
+            'bookings'   => $bookings,
+            'revenue'    => $revenue,
+            'filters'    => $filters,
+            'unreadCount'=> $unreadCount,
+        ]);
     }
 
+    public function bookingDetail($id) {
+        $booking = $this->bookingModel->getWithDetails($id);
+        if (!$booking) { $_SESSION['error'] = 'Booking not found.'; $this->redirect('/admin/bookings'); }
+        return $this->view('admin/booking_detail', [
+            'title'   => 'Booking #' . $booking['booking_ref'] . ' - CHNMS',
+            'booking' => $booking,
+        ]);
+    }
+
+    public function cancelBooking($id) {
+        CsrfMiddleware::verify();
+        $this->bookingModel->cancel($id);
+        AuditLog::record('booking_cancelled', 'Booking', $id);
+        $this->json(['success' => true]);
+    }
+
+    // =============================================
+    // FINANCE MODULE
+    // =============================================
     public function finance() {
-        $transactions = [
-            ['id' => 'TXN-9982', 'hotel' => 'Sea View Resort', 'type' => 'Platform Fee', 'amount' => 1500, 'date' => '2026-06-05', 'status' => 'Paid'],
-            ['id' => 'TXN-9983', 'hotel' => 'Mountain Retreat', 'type' => 'Platform Fee', 'amount' => 1200, 'date' => '2026-06-06', 'status' => 'Pending'],
-        ];
-        return $this->view('admin/finance', ['title' => 'Finance - CHNMS', 'transactions' => $transactions]);
+        $revenue      = $this->bookingModel->getRevenueSummary(null, 30);
+        $dailyRevenue = $this->bookingModel->getDailyRevenue(null, 30);
+        $bookings     = $this->bookingModel->allWithDetails(['limit' => 15]);
+        $unreadCount  = $this->notifModel->unreadCount($_SESSION['user_id']);
+
+        return $this->view('admin/finance', [
+            'title'       => 'Finance - CHNMS',
+            'revenue'     => $revenue,
+            'dailyRevenue'=> json_encode($dailyRevenue),
+            'bookings'    => $bookings,
+            'unreadCount' => $unreadCount,
+        ]);
     }
 
+    // =============================================
+    // ROOM MONITOR
+    // =============================================
+    public function roomMonitor() {
+        $hotels   = $this->hotelModel->allWithAdmin('approved');
+        $selected = Sanitizer::int($_GET['hotel_id'] ?? 0);
+        $statusF  = Sanitizer::clean($_GET['status'] ?? '');
+        $rooms    = [];
+        $hotelId  = $selected ?: ($hotels[0]['id'] ?? null);
+
+        if ($hotelId) {
+            $rooms = $this->roomModel->byHotel($hotelId, $statusF ?: null);
+            // Attach current booking info to occupied rooms
+            foreach ($rooms as &$room) {
+                if ($room['status'] === 'occupied') {
+                    $room['current_booking'] = $this->bookingModel->queryOne(
+                        "SELECT b.*, CONCAT(g.first_name,' ',g.last_name) as guest_name, g.phone as guest_phone
+                         FROM bookings b JOIN guests g ON g.id=b.guest_id
+                         WHERE b.room_id=? AND b.status='checked_in' LIMIT 1",
+                        [$room['id']]
+                    );
+                }
+            }
+        }
+
+        return $this->view('admin/room_monitor', [
+            'title'    => 'Room Monitor - CHNMS',
+            'hotels'   => $hotels,
+            'rooms'    => $rooms,
+            'hotelId'  => $hotelId,
+            'statusF'  => $statusF,
+        ]);
+    }
+
+    // =============================================
+    // TRANSFERS
+    // =============================================
+    public function transfers() {
+        $status    = Sanitizer::clean($_GET['status'] ?? 'pending');
+        $transfers = $this->transferModel->allWithDetails($status ?: null);
+        $counts    = [
+            'pending'  => $this->transferModel->count("status = 'pending'"),
+            'accepted' => $this->transferModel->count("status = 'accepted'"),
+            'rejected' => $this->transferModel->count("status = 'rejected'"),
+        ];
+        return $this->view('admin/transfers', [
+            'title'     => 'Transfer Center - CHNMS',
+            'transfers' => $transfers,
+            'status'    => $status,
+            'counts'    => $counts,
+        ]);
+    }
+
+    public function approveTransfer($id) {
+        CsrfMiddleware::verify();
+        $notes = Sanitizer::clean($_POST['notes'] ?? '');
+        $this->transferModel->approve($id, $notes);
+        AuditLog::record('transfer_approved', 'Transfer', $id);
+        $this->json(['success' => true]);
+    }
+
+    public function rejectTransfer($id) {
+        CsrfMiddleware::verify();
+        $notes = Sanitizer::clean($_POST['notes'] ?? '');
+        $this->transferModel->reject($id, $notes);
+        AuditLog::record('transfer_rejected', 'Transfer', $id);
+        $this->json(['success' => true]);
+    }
+
+    // =============================================
+    // SEARCH
+    // =============================================
     public function search() {
         return $this->view('admin/search', ['title' => 'Room Search - CHNMS']);
     }
