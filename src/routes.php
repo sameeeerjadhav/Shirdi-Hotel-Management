@@ -16,6 +16,7 @@ $router->get('/admin/dashboard', [AdminController::class, 'dashboard']);
 $router->get('/admin/hotels', [AdminController::class, 'hotels']);
 $router->get('/admin/bookings', [AdminController::class, 'bookings']);
 $router->get('/admin/finance', [AdminController::class, 'finance']);
+$router->get('/admin/search', [AdminController::class, 'search']);
 
 // Hotel Admin Routes
 use App\Controllers\HotelController;

@@ -40,4 +40,8 @@ class AdminController extends Controller {
     public function finance() {
         return $this->view('admin/placeholder', ['title' => 'Finance - CHNMS', 'module' => 'Finance & Revenue']);
     }
+
+    public function search() {
+        return $this->view('admin/placeholder', ['title' => 'Room Search - CHNMS', 'module' => 'Internal Room Search']);
+    }
 }

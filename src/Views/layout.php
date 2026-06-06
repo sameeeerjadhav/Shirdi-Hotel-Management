@@ -327,7 +327,7 @@
     <div class="sidebar-section">Management</div>
     <ul class="nav flex-column">
         <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/finance"><i class="fa-solid fa-chart-line"></i> Finance</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/search"><i class="fa-solid fa-magnifying-glass"></i> Room Search</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/search"><i class="fa-solid fa-magnifying-glass"></i> Room Search</a></li>
     </ul>
     <?php elseif ($_SESSION['role_id'] == 2): // Hotel Admin ?>
     <div class="sidebar-section">Main</div>
