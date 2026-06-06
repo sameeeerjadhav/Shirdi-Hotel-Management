@@ -30,18 +30,32 @@ class AdminController extends Controller {
     }
 
     public function hotels() {
-        return $this->view('admin/placeholder', ['title' => 'Hotels - CHNMS', 'module' => 'Hotels Management']);
+        $hotels = [
+            ['id' => 1, 'name' => 'Grand Plaza Hotel', 'city' => 'Mumbai', 'email' => 'grand.plaza@chnms.com', 'status' => 'Pending', 'rooms' => 45],
+            ['id' => 2, 'name' => 'Sea View Resort', 'city' => 'Goa', 'email' => 'seaview@chnms.com', 'status' => 'Active', 'rooms' => 120],
+            ['id' => 3, 'name' => 'Mountain Retreat', 'city' => 'Shimla', 'email' => 'retreat@chnms.com', 'status' => 'Active', 'rooms' => 35],
+        ];
+        return $this->view('admin/hotels', ['title' => 'Hotels - CHNMS', 'hotels' => $hotels]);
     }
 
     public function bookings() {
-        return $this->view('admin/placeholder', ['title' => 'Bookings - CHNMS', 'module' => 'All Bookings']);
+        $bookings = [
+            ['id' => 'BKG-001', 'guest' => 'Raj Sharma', 'hotel' => 'Sea View Resort', 'checkin' => '2026-06-10', 'checkout' => '2026-06-12', 'amount' => 15000, 'status' => 'Confirmed'],
+            ['id' => 'BKG-002', 'guest' => 'Anita Desai', 'hotel' => 'Grand Plaza Hotel', 'checkin' => '2026-06-15', 'checkout' => '2026-06-16', 'amount' => 2500, 'status' => 'Pending'],
+            ['id' => 'BKG-003', 'guest' => 'Vikram Singh', 'hotel' => 'Mountain Retreat', 'checkin' => '2026-06-05', 'checkout' => '2026-06-08', 'amount' => 12000, 'status' => 'Completed'],
+        ];
+        return $this->view('admin/bookings', ['title' => 'Bookings - CHNMS', 'bookings' => $bookings]);
     }
 
     public function finance() {
-        return $this->view('admin/placeholder', ['title' => 'Finance - CHNMS', 'module' => 'Finance & Revenue']);
+        $transactions = [
+            ['id' => 'TXN-9982', 'hotel' => 'Sea View Resort', 'type' => 'Platform Fee', 'amount' => 1500, 'date' => '2026-06-05', 'status' => 'Paid'],
+            ['id' => 'TXN-9983', 'hotel' => 'Mountain Retreat', 'type' => 'Platform Fee', 'amount' => 1200, 'date' => '2026-06-06', 'status' => 'Pending'],
+        ];
+        return $this->view('admin/finance', ['title' => 'Finance - CHNMS', 'transactions' => $transactions]);
     }
 
     public function search() {
-        return $this->view('admin/placeholder', ['title' => 'Room Search - CHNMS', 'module' => 'Internal Room Search']);
+        return $this->view('admin/search', ['title' => 'Room Search - CHNMS']);
     }
 }

@@ -51,6 +51,10 @@ class HotelController extends Controller {
     }
 
     public function bookings() {
-        return $this->view('hotel/placeholder', ['title' => 'Bookings - CHNMS', 'module' => 'Hotel Bookings']);
+        $bookings = [
+            ['id' => 'BKG-001', 'guest' => 'Raj Sharma', 'room' => '101', 'checkin' => '2026-06-10', 'checkout' => '2026-06-12', 'amount' => 5000, 'status' => 'Confirmed'],
+            ['id' => 'BKG-004', 'guest' => 'Sunil Shetty', 'room' => '201', 'checkin' => '2026-06-15', 'checkout' => '2026-06-16', 'amount' => 5000, 'status' => 'Pending'],
+        ];
+        return $this->view('hotel/bookings', ['title' => 'Bookings - CHNMS', 'bookings' => $bookings]);
     }
 }
