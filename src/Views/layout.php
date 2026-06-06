@@ -6,6 +6,8 @@
     <title><?= htmlspecialchars($title ?? 'CHNMS') ?></title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <style>
         :root {
@@ -13,12 +15,12 @@
             --sidebar-bg: #27293d;
             --accent-color: #e14eca;
             --text-color: #ffffff;
-            --card-bg: #27293d;
+            --card-bg: rgba(39, 41, 61, 0.8);
         }
         body {
-            background-color: var(--primary-bg);
+            background: linear-gradient(135deg, #1e1e2f 0%, #1a1a24 100%);
             color: var(--text-color);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -36,15 +38,17 @@
         }
         .sidebar .nav-link {
             color: rgba(255,255,255,0.7);
-            padding: 15px 25px;
-            margin: 5px 15px;
+            padding: 12px 25px;
+            margin: 8px 15px;
             border-radius: 8px;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
         .sidebar .nav-link:hover, .sidebar .nav-link.active {
             color: #fff;
             background: var(--accent-color);
             box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(225,78,202,.4);
+            transform: translateX(5px);
         }
         .sidebar-brand {
             color: #fff;
@@ -69,9 +73,20 @@
         .card {
             background: var(--card-bg);
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 1px 20px 0 rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.2);
             margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px 0 rgba(0,0,0,0.3);
+        }
+        .glass-card {
+            background: rgba(39, 41, 61, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .card-header {
             background: transparent;
@@ -94,6 +109,15 @@
             color: #fff;
             border-color: var(--accent-color);
             box-shadow: 0 0 0 0.25rem rgba(225, 78, 202, 0.25);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
         }
     </style>
 </head>

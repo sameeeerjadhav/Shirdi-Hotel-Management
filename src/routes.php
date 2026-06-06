@@ -14,6 +14,12 @@ $router->get('/logout', [AuthController::class, 'logout']);
 // Admin Routes
 $router->get('/admin/dashboard', [AdminController::class, 'dashboard']);
 
+// Hotel Admin Routes
+use App\Controllers\HotelController;
+$router->get('/hotel/dashboard', [HotelController::class, 'dashboard']);
+$router->get('/hotel/rooms', [HotelController::class, 'rooms']);
+$router->post('/hotel/rooms/add', [HotelController::class, 'addRoom']);
+
 // Public/Guest Routes
 $router->get('/register-hotel', [HomeController::class, 'registerHotelForm']);
 $router->post('/register-hotel', [HomeController::class, 'registerHotelSubmit']);
