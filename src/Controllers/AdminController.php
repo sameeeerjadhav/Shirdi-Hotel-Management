@@ -28,4 +28,16 @@ class AdminController extends Controller {
             'stats' => $stats
         ]);
     }
+
+    public function hotels() {
+        return $this->view('admin/placeholder', ['title' => 'Hotels - CHNMS', 'module' => 'Hotels Management']);
+    }
+
+    public function bookings() {
+        return $this->view('admin/placeholder', ['title' => 'Bookings - CHNMS', 'module' => 'All Bookings']);
+    }
+
+    public function finance() {
+        return $this->view('admin/placeholder', ['title' => 'Finance - CHNMS', 'module' => 'Finance & Revenue']);
+    }
 }

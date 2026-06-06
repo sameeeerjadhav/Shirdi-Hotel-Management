@@ -13,12 +13,16 @@ $router->get('/logout', [AuthController::class, 'logout']);
 
 // Admin Routes
 $router->get('/admin/dashboard', [AdminController::class, 'dashboard']);
+$router->get('/admin/hotels', [AdminController::class, 'hotels']);
+$router->get('/admin/bookings', [AdminController::class, 'bookings']);
+$router->get('/admin/finance', [AdminController::class, 'finance']);
 
 // Hotel Admin Routes
 use App\Controllers\HotelController;
 $router->get('/hotel/dashboard', [HotelController::class, 'dashboard']);
 $router->get('/hotel/rooms', [HotelController::class, 'rooms']);
 $router->post('/hotel/rooms/add', [HotelController::class, 'addRoom']);
+$router->get('/hotel/bookings', [HotelController::class, 'bookings']);
 
 // Public/Guest Routes
 use App\Controllers\BookingController;

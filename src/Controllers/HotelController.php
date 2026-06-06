@@ -49,4 +49,8 @@ class HotelController extends Controller {
         $_SESSION['success'] = "Room added successfully.";
         $this->redirect('/hotel/rooms');
     }
+
+    public function bookings() {
+        return $this->view('hotel/placeholder', ['title' => 'Bookings - CHNMS', 'module' => 'Hotel Bookings']);
+    }
 }
