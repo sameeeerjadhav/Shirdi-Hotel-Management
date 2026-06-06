@@ -4,364 +4,385 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? 'CHNMS') ?></title>
-    <!-- Bootstrap 5 CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts: Inter (similar to the screenshot) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom Light UI CSS -->
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --bg-color: #f4f7fe;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: rgba(99,102,241,0.08);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --bg: #f8fafc;
             --sidebar-bg: #ffffff;
-            --sidebar-text: #a0aec0;
-            --sidebar-active-bg: #e9ecef;
-            --sidebar-active-text: #4318ff;
-            --text-main: #2b3674;
-            --text-muted: #a3aed1;
             --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --primary-color: #4318ff;
+            --text-heading: #0f172a;
+            --text-body: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --sidebar-width: 255px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.08);
+            --radius: 12px;
+            --radius-sm: 8px;
         }
+
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-body);
             display: flex;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .sidebar-logo {
+            padding: 24px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+        .logo-text { font-size: 17px; font-weight: 700; color: var(--text-heading); letter-spacing: -0.3px; }
+        .logo-text span { color: var(--primary); }
+
+        .sidebar-section {
+            padding: 6px 12px 4px;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 14px;
+        }
+        .nav-item { padding: 2px 8px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            color: var(--text-body);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+        .nav-link i { width: 18px; text-align: center; font-size: 15px; color: var(--text-muted); transition: color 0.15s; }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link:hover i { color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+        .nav-link.active i { color: var(--primary); }
+        .nav-link.danger { color: var(--danger); }
+        .nav-link.danger i { color: var(--danger); }
+        .nav-link.danger:hover { background: rgba(239,68,68,0.08); }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== MAIN AREA ===== */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
-        
-        /* Sidebar Styles */
-        .sidebar {
-            width: 260px;
-            background: var(--sidebar-bg);
-            padding: 20px 15px;
-            height: 100vh;
-            border-right: 1px solid var(--border-color);
-            transition: 0.3s;
-            overflow-y: auto;
-        }
-        .sidebar-brand {
-            color: var(--text-main);
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 40px;
-            padding-left: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .sidebar-brand i {
-            color: var(--primary-color);
-        }
-        .sidebar-heading {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            padding-left: 15px;
-            margin-top: 25px;
-        }
-        .sidebar .nav-link {
-            color: var(--sidebar-text);
-            padding: 12px 15px;
-            margin-bottom: 5px;
-            border-radius: 10px;
-            font-weight: 500;
-            font-size: 15px;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .sidebar .nav-link i {
-            font-size: 18px;
-            width: 20px;
-            text-align: center;
-        }
-        .sidebar .nav-link:hover {
-            color: var(--text-main);
-            background: rgba(0,0,0,0.02);
-        }
-        .sidebar .nav-link.active {
-            color: var(--primary-color);
-            background: rgba(67, 24, 255, 0.08);
-            font-weight: 600;
-        }
-        
-        /* Main Content */
-        .main-content {
-            flex-grow: 1;
-            padding: 0 30px 30px 30px;
-            overflow-y: auto;
-        }
-        
-        /* Navbar */
-        .navbar {
-            background: transparent !important;
-            padding: 25px 0;
-            margin-bottom: 10px;
-        }
-        .navbar-brand {
-            color: var(--text-main) !important;
-            font-size: 24px;
-            font-weight: 700;
-        }
-        .breadcrumb-text {
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+
+        /* ===== TOPBAR ===== */
+        .topbar {
+            height: 64px;
             background: white;
-            padding: 5px 15px 5px 5px;
-            border-radius: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 28px;
+            flex-shrink: 0;
         }
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            background: var(--primary-color);
+        .topbar-title { font-size: 18px; font-weight: 700; color: var(--text-heading); }
+        .topbar-subtitle { font-size: 13px; color: var(--text-muted); }
+        .user-chip {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 6px 14px 6px 6px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .avatar {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
         }
-        .user-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-main);
+        .user-chip-name { font-size: 13px; font-weight: 600; color: var(--text-heading); }
+        .user-chip-role { font-size: 11px; color: var(--text-muted); }
+
+        /* ===== CONTENT ===== */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px;
         }
 
-        /* Cards */
+        /* ===== CARDS ===== */
         .card {
             background: var(--card-bg);
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 5px 14px rgba(0,0,0,0.02);
-            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+            transition: box-shadow 0.2s ease;
         }
+        .card:hover { box-shadow: var(--shadow-md); }
         .card-header {
             background: transparent;
-            border-bottom: 1px solid var(--border-color);
-            padding: 20px 25px;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--text-main);
-        }
-        .card-body {
-            padding: 25px;
-        }
-        
-        /* Dashboard Stat Cards */
-        .stat-card {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .stat-icon {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-        }
-        .stat-icon.blue { background: rgba(67, 24, 255, 0.1); color: var(--primary-color); }
-        .stat-icon.green { background: rgba(5, 205, 153, 0.1); color: #05cd99; }
-        .stat-icon.orange { background: rgba(255, 153, 32, 0.1); color: #ff9920; }
-        .stat-icon.red { background: rgba(238, 93, 80, 0.1); color: #ee5d50; }
-        
-        .stat-details h3 {
-            font-size: 28px;
-            font-weight: 700;
-            margin: 0;
-            color: var(--text-main);
-        }
-        .stat-details p {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin: 0;
-            font-weight: 500;
-            text-transform: uppercase;
-        }
-        .stat-details .sub-text {
-            font-size: 12px;
-            color: #a3aed1;
-            margin-top: 4px;
-            text-transform: none;
-        }
-
-        /* Tables */
-        .table {
-            color: var(--text-main);
-            margin-bottom: 0;
-        }
-        .table thead th {
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 12px;
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            font-size: 15px;
             font-weight: 600;
-            text-transform: uppercase;
-            padding: 15px;
+            color: var(--text-heading);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .card-body { padding: 20px; }
+
+        /* ===== STAT CARDS ===== */
+        .stat-card { padding: 20px; }
+        .stat-card .icon-wrap {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin-bottom: 14px;
+        }
+        .stat-card .value { font-size: 26px; font-weight: 800; color: var(--text-heading); }
+        .stat-card .label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+        .icon-indigo { background: rgba(99,102,241,0.1); color: #6366f1; }
+        .icon-green  { background: rgba(34,197,94,0.1); color: #22c55e; }
+        .icon-amber  { background: rgba(245,158,11,0.1); color: #f59e0b; }
+        .icon-red    { background: rgba(239,68,68,0.1); color: #ef4444; }
+        .icon-cyan   { background: rgba(6,182,212,0.1); color: #06b6d4; }
+
+        /* ===== TABLES ===== */
+        .table { color: var(--text-body); font-size: 14px; }
+        .table thead th {
+            color: var(--text-muted); font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 13px 16px; border-bottom: 1px solid var(--border);
             background: transparent;
         }
         .table tbody td {
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px;
-            vertical-align: middle;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 13px 16px; border-bottom: 1px solid var(--border);
+            vertical-align: middle; color: var(--text-body);
         }
-        .table tbody tr:last-child td {
-            border-bottom: none;
-        }
+        .table tbody tr:last-child td { border-bottom: none; }
+        .table tbody tr:hover td { background: #f8fafc; }
 
-        /* Badges */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
+        /* ===== BADGES ===== */
+        .badge-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
         }
-        .status-badge.active { background: rgba(5, 205, 153, 0.1); color: #05cd99; }
-        .status-badge.inactive { background: rgba(238, 93, 80, 0.1); color: #ee5d50; }
-        .status-badge .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-        }
-        .status-badge.active .dot { background: #05cd99; }
-        .status-badge.inactive .dot { background: #ee5d50; }
+        .badge-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .badge-active { background: rgba(34,197,94,0.1); color: #16a34a; }
+        .badge-active .dot { background: #22c55e; }
+        .badge-pending { background: rgba(245,158,11,0.1); color: #b45309; }
+        .badge-pending .dot { background: #f59e0b; }
+        .badge-occupied { background: rgba(239,68,68,0.1); color: #dc2626; }
+        .badge-occupied .dot { background: #ef4444; }
+        .badge-cleaning { background: rgba(6,182,212,0.1); color: #0891b2; }
+        .badge-cleaning .dot { background: #06b6d4; }
 
-        /* Forms */
+        /* ===== FORMS ===== */
+        .form-label { font-size: 13px; font-weight: 600; color: var(--text-heading); margin-bottom: 6px; }
         .form-control, .form-select {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            border-radius: 10px;
-            padding: 10px 15px;
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 14px; color: var(--text-heading);
+            padding: 9px 14px; transition: border-color 0.15s, box-shadow 0.15s;
+            background: white;
         }
-        .form-label {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-main);
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary); outline: none;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
         }
-        
-        /* Buttons */
+        .form-section-title {
+            font-size: 13px; font-weight: 700; color: var(--text-heading);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            padding-bottom: 10px; margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ===== BUTTONS ===== */
         .btn-primary {
-            background-color: var(--primary-color);
-            border: none;
-            border-radius: 10px;
-            font-weight: 500;
-            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; border: none; border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600; padding: 9px 20px;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+            transition: all 0.2s;
         }
-        
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.4); color: white; }
+        .btn-outline-primary {
+            color: var(--primary); border: 1.5px solid var(--primary);
+            background: transparent; border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600; padding: 9px 20px;
+            transition: all 0.2s;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .btn-outline-primary:hover { background: var(--primary); color: white; }
+        .btn-light { background: var(--bg); border: 1px solid var(--border); color: var(--text-body); border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; }
+        .btn-icon { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all 0.15s; font-size: 13px; }
+        .btn-icon-primary { background: var(--primary-light); color: var(--primary); }
+        .btn-icon-danger { background: rgba(239,68,68,0.08); color: var(--danger); }
+
+        /* ===== MODALS ===== */
+        .modal-content { border: none; border-radius: 16px; box-shadow: var(--shadow-lg); }
+        .modal-header { border-bottom: 1px solid var(--border); padding: 20px 24px; }
+        .modal-title { font-size: 16px; font-weight: 700; color: var(--text-heading); }
+        .modal-body { padding: 24px; }
+        .modal-footer { border-top: 1px solid var(--border); padding: 16px 24px; }
+
+        /* ===== ALERTS ===== */
+        .alert { border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; padding: 12px 16px; }
+        .alert-success { background: rgba(34,197,94,0.1); color: #16a34a; }
+        .alert-danger { background: rgba(239,68,68,0.1); color: #dc2626; }
+        .alert-info { background: rgba(6,182,212,0.1); color: #0891b2; }
+
+        /* ===== ROW IDENTITY ===== */
+        .identity-cell { display: flex; align-items: center; gap: 12px; }
+        .identity-avatar {
+            width: 34px; height: 34px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
         }
+        .identity-name { font-size: 14px; font-weight: 600; color: var(--text-heading); }
+        .identity-sub { font-size: 12px; color: var(--text-muted); }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header { margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .page-header h2 { font-size: 20px; font-weight: 700; color: var(--text-heading); }
+        .page-header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+        /* ===== FULLPAGE (no sidebar) ===== */
+        .fullpage-wrap {
+            width: 100%; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg);
+        }
+
+        /* Animations */
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        .fade-in { animation: fadeUp 0.4s ease both; }
+        .fade-in-2 { animation: fadeUp 0.4s 0.1s ease both; }
+        .fade-in-3 { animation: fadeUp 0.4s 0.2s ease both; }
     </style>
 </head>
 <body>
 
-    <?php if (isset($_SESSION['user_id'])): ?>
-    <div class="sidebar">
-        <div class="sidebar-brand">
-            <i class="fa-solid fa-hotel"></i> CHNMS
-        </div>
-        
-        <div class="sidebar-heading">Main</div>
-        <ul class="nav flex-column mb-3">
-            <?php if ($_SESSION['role_id'] == 1): // Super Admin ?>
-                <li class="nav-item">
-                    <a class="nav-link active" href="<?= BASE_URL ?>/admin/dashboard">
-                        <i class="fa-solid fa-border-all"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= BASE_URL ?>/admin/hotels">
-                        <i class="fa-solid fa-building"></i> Hotels
-                    </a>
-                </li>
-            <?php elseif ($_SESSION['role_id'] == 2): // Hotel Admin ?>
-                <li class="nav-item">
-                    <a class="nav-link active" href="<?= BASE_URL ?>/hotel/dashboard">
-                        <i class="fa-solid fa-border-all"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= BASE_URL ?>/hotel/rooms">
-                        <i class="fa-solid fa-bed"></i> Rooms
-                    </a>
-                </li>
-            <?php endif; ?>
-        </ul>
-
-        <div class="sidebar-heading">Account</div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link text-danger" href="<?= BASE_URL ?>/logout">
-                    <i class="fa-solid fa-sign-out-alt"></i> Logout
-                </a>
-            </li>
-        </ul>
+<?php if (isset($_SESSION['user_id'])): ?>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fa-solid fa-hotel"></i></div>
+        <div class="logo-text">CH<span>NMS</span></div>
     </div>
+
+    <?php if ($_SESSION['role_id'] == 1): // Super Admin ?>
+    <div class="sidebar-section">Main</div>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link active" href="<?= BASE_URL ?>/admin/dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/hotels"><i class="fa-solid fa-building"></i> Hotels</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/bookings"><i class="fa-solid fa-calendar-check"></i> Bookings</a></li>
+    </ul>
+    <div class="sidebar-section">Management</div>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/finance"><i class="fa-solid fa-chart-line"></i> Finance</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/search"><i class="fa-solid fa-magnifying-glass"></i> Room Search</a></li>
+    </ul>
+    <?php elseif ($_SESSION['role_id'] == 2): // Hotel Admin ?>
+    <div class="sidebar-section">Main</div>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link active" href="<?= BASE_URL ?>/hotel/dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/hotel/rooms"><i class="fa-solid fa-bed"></i> Rooms</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/hotel/bookings"><i class="fa-solid fa-calendar-check"></i> Bookings</a></li>
+    </ul>
     <?php endif; ?>
 
-    <div class="main-content">
-        <?php if (isset($_SESSION['user_id'])): ?>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid px-0">
-                <div>
-                    <div class="breadcrumb-text mb-1">Pages / <?= htmlspecialchars($title ?? 'Dashboard') ?></div>
-                    <span class="navbar-brand mb-0"><?= htmlspecialchars($title ?? 'Dashboard') ?></span>
-                </div>
-                <div class="d-flex align-items-center">
-                    <div class="user-profile">
-                        <span style="font-size: 13px; font-weight: 600; color: var(--primary-color); padding-left: 10px;">Role: <?= $_SESSION['role_id'] == 1 ? 'Admin' : 'Hotel' ?></span>
-                        <div class="user-avatar ms-2">
-                            <?= strtoupper(substr($_SESSION['name'], 0, 1)) ?>
-                        </div>
-                        <span class="user-name pe-2"><?= htmlspecialchars($_SESSION['name']) ?></span>
-                    </div>
-                </div>
-            </div>
-        </nav>
-        <?php endif; ?>
+    <div class="sidebar-footer">
+        <a class="nav-link danger" href="<?= BASE_URL ?>/logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</a>
+    </div>
+</aside>
 
+<!-- MAIN WRAPPER -->
+<div class="main-wrapper">
+    <div class="topbar">
         <div>
-            <?php if(isset($_SESSION['error'])): ?>
-                <div class="alert alert-danger" style="border-radius: 10px; border: none;"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
-            <?php endif; ?>
-            <?php if(isset($_SESSION['success'])): ?>
-                <div class="alert alert-success" style="border-radius: 10px; border: none; background: rgba(5,205,153,0.1); color: #05cd99; font-weight: 600;"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
-            <?php endif; ?>
-
-            <?= $content ?>
+            <div class="topbar-title"><?= htmlspecialchars($title ?? 'Dashboard') ?></div>
+            <div class="topbar-subtitle"><?= date('l, d F Y') ?></div>
+        </div>
+        <div class="user-chip">
+            <div class="avatar"><?= strtoupper(substr($_SESSION['name'], 0, 1)) ?></div>
+            <div>
+                <div class="user-chip-name"><?= htmlspecialchars($_SESSION['name']) ?></div>
+                <div class="user-chip-role"><?= $_SESSION['role_id'] == 1 ? 'Super Admin' : 'Hotel Admin' ?></div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="content-area">
+        <?php if(isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger fade-in mb-3"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+        <?php if(isset($_SESSION['success'])): ?>
+            <div class="alert alert-success fade-in mb-3"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+        <?= $content ?>
+    </div>
+</div>
+
+<?php else: ?>
+<!-- NO SIDEBAR: public pages rendered without sidebar -->
+<div style="width:100%; min-height:100vh; background:var(--bg);">
+    <?php if(isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger" style="margin:16px;"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+    <?php endif; ?>
+    <?php if(isset($_SESSION['success'])): ?>
+        <div class="alert alert-success" style="margin:16px;"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+    <?php endif; ?>
+    <?= $content ?>
+</div>
+<?php endif; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
