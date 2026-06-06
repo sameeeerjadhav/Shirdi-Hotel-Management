@@ -416,6 +416,10 @@
         <li class="nav-item"><a class="nav-link <?= $isActive('/admin/finance') ?>" href="<?= BASE_URL ?>/admin/finance"><i class="fa-solid fa-chart-line"></i> Finance</a></li>
         <li class="nav-item"><a class="nav-link <?= $isActive('/admin/search') ?>" href="<?= BASE_URL ?>/admin/search"><i class="fa-solid fa-magnifying-glass"></i> Room Search</a></li>
     </ul>
+    <div class="sidebar-section">Management</div>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/users') ?>" href="<?= BASE_URL ?>/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+    </ul>
     <?php elseif ($_SESSION['role_id'] == 2): // Hotel Admin ?>
     <div class="sidebar-section">Main</div>
     <ul class="nav flex-column">
@@ -484,27 +488,11 @@
                                 <div class="dropdown-item-sub">Account settings &amp; password</div>
                             </div>
                         </a>
-                        <?php if ($_SESSION['role_id'] == 1): ?>
-                        <a href="<?= BASE_URL ?>/admin/hotels" class="dropdown-item">
-                            <i class="fa-solid fa-building"></i>
-                            <div>
-                                <div class="dropdown-item-title">Manage Hotels</div>
-                                <div class="dropdown-item-sub">Hotel network overview</div>
-                            </div>
-                        </a>
-                        <?php endif; ?>
-                        <a href="<?= BASE_URL ?>/admin/search" class="dropdown-item">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <div>
-                                <div class="dropdown-item-title">Room Search</div>
-                                <div class="dropdown-item-sub">Search available rooms</div>
-                            </div>
-                        </a>
                     </div>
 
                     <!-- Sign Out -->
                     <div style="padding:8px 0;border-top:1px solid #f1f5f9;">
-                        <a href="<?= BASE_URL ?>/logout" class="dropdown-item" style="--item-color:#ef4444;">
+                        <a href="<?= BASE_URL ?>/logout" class="dropdown-item">
                             <i class="fa-solid fa-arrow-right-from-bracket" style="color:#ef4444;"></i>
                             <div>
                                 <div class="dropdown-item-title" style="color:#ef4444;">Sign Out</div>

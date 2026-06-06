@@ -70,6 +70,14 @@ $router->post('/admin/transfers/{id}/reject',     [AdminController::class, 'reje
 // Search
 $router->get('/admin/search', [AdminController::class, 'search']);
 
+// Users Management
+use App\Controllers\UserController;
+$router->get('/admin/users',                  [UserController::class, 'index']);
+$router->post('/admin/users/create',          [UserController::class, 'create']);
+$router->post('/admin/users/{id}/toggle',     [UserController::class, 'toggleStatus']);
+$router->post('/admin/users/{id}/password',   [UserController::class, 'resetPassword']);
+$router->post('/admin/users/{id}/delete',     [UserController::class, 'delete']);
+
 // =============================================
 // HOTEL PARTNER ROUTES
 // =============================================
