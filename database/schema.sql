@@ -1,5 +1,4 @@
-CREATE DATABASE IF NOT EXISTS chnms_db;
-USE chnms_db;
+-- Hostinger DB: u587292075_hotel (Database must be created via hPanel)
 
 CREATE TABLE roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
