@@ -1,12 +1,8 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # If the requested filename exists, simply serve it.
-    RewriteCond %{REQUEST_FILENAME} -s [OR]
-    RewriteCond %{REQUEST_FILENAME} -l [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^.*$ - [NC,L]
-
-    # Otherwise, direct all requests to index.php
-    RewriteRule ^(.*)$ index.php [NC,L]
+    # If it's an existing file, serve it directly
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # Otherwise, route all requests to index.php
+    RewriteRule ^ index.php [L]
 </IfModule>
