@@ -35,7 +35,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             color: var(--text-body);
             display: flex;
             min-height: 100vh;
@@ -45,8 +45,10 @@
         /* ===== SIDEBAR ===== */
         .sidebar {
             width: var(--sidebar-width);
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255,255,255,0.4);
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -54,6 +56,7 @@
             left: 0; top: 0;
             z-index: 100;
             overflow-y: auto;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.02);
         }
         .sidebar-logo {
             padding: 24px 20px 20px;
@@ -121,12 +124,16 @@
 
         /* ===== TOPBAR ===== */
         .topbar {
-            height: 64px;
-            background: white;
-            border-bottom: 1px solid var(--border);
+            height: 70px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 28px;
+            padding: 0 32px;
             flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            position: sticky; top: 0; z-index: 50;
         }
         .topbar-title { font-size: 18px; font-weight: 700; color: var(--text-heading); }
         .topbar-subtitle { font-size: 13px; color: var(--text-muted); }
@@ -158,14 +165,26 @@
 
         /* ===== CARDS ===== */
         .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 20px;
-            transition: box-shadow 0.2s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+            margin-bottom: 24px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
         }
-        .card:hover { box-shadow: var(--shadow-md); }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary), #a855f7, var(--info));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .card:hover { 
+            transform: translateY(-6px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08); 
+        }
+        .card:hover::before { opacity: 1; }
         .card-header {
             background: transparent;
             border-bottom: 1px solid var(--border);
@@ -195,19 +214,30 @@
         .icon-cyan   { background: rgba(6,182,212,0.1); color: #06b6d4; }
 
         /* ===== TABLES ===== */
-        .table { color: var(--text-body); font-size: 14px; }
+        .table { color: var(--text-body); font-size: 14px; border-collapse: separate; border-spacing: 0 8px; margin-top: -8px; }
         .table thead th {
-            color: var(--text-muted); font-size: 11px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            padding: 13px 16px; border-bottom: 1px solid var(--border);
+            color: var(--text-muted); font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            padding: 16px 20px; border-bottom: none;
             background: transparent;
         }
+        .table tbody tr {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            border-radius: 12px;
+            transition: all 0.25s ease;
+        }
         .table tbody td {
-            padding: 13px 16px; border-bottom: 1px solid var(--border);
+            padding: 16px 20px; border-bottom: none; border-top: none;
             vertical-align: middle; color: var(--text-body);
         }
-        .table tbody tr:last-child td { border-bottom: none; }
-        .table tbody tr:hover td { background: #f8fafc; }
+        .table tbody td:first-child { border-radius: 12px 0 0 12px; }
+        .table tbody td:last-child { border-radius: 0 12px 12px 0; }
+        .table tbody tr:hover { 
+            transform: scale(1.01) translateY(-2px); 
+            box-shadow: 0 12px 24px rgba(99,102,241,0.1); 
+            z-index: 10; position: relative;
+        }
 
         /* ===== BADGES ===== */
         .badge-pill {
@@ -246,13 +276,19 @@
 
         /* ===== BUTTONS ===== */
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white; border: none; border-radius: var(--radius-sm);
-            font-size: 14px; font-weight: 600; padding: 9px 20px;
-            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
-            transition: all 0.2s;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark), #8b5cf6);
+            background-size: 200% auto;
+            color: white; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; padding: 10px 24px;
+            box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+            transition: all 0.3s ease;
         }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.4); color: white; }
+        .btn-primary:hover { 
+            background-position: right center;
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 24px rgba(99,102,241,0.5); 
+            color: white; 
+        }
         .btn-outline-primary {
             color: var(--primary); border: 1.5px solid var(--primary);
             background: transparent; border-radius: var(--radius-sm);
