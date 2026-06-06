@@ -79,20 +79,24 @@ class AdminController extends Controller {
         $status = Sanitizer::clean($_GET['status'] ?? '');
         $search = Sanitizer::clean($_GET['search'] ?? '');
 
-        if ($search) {
-            $hotels = $this->hotelModel->search($search, $status ?: null);
-        } else {
-            $hotels = $this->hotelModel->allWithAdmin($status ?: null);
+        try {
+            if ($search) {
+                $hotels = $this->hotelModel->search($search, $status ?: null);
+            } else {
+                $hotels = $this->hotelModel->allWithAdmin($status ?: null);
+            }
+        } catch (\Exception $e) {
+            $hotels = [];
         }
 
         $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
 
         return $this->view('admin/hotels', [
-            'title'      => 'Hotel Management - CHNMS',
-            'hotels'     => $hotels,
-            'status'     => $status,
-            'search'     => $search,
-            'unreadCount'=> $unreadCount,
+            'title'       => 'Hotel Management - CHNMS',
+            'hotels'      => $hotels,
+            'status'      => $status,
+            'search'      => $search,
+            'unreadCount' => $unreadCount,
         ]);
     }
 
@@ -180,30 +184,32 @@ class AdminController extends Controller {
         CsrfMiddleware::verify();
         $hotel = $this->hotelModel->getWithDetails($id);
         $this->hotelModel->approve($id);
-        $notif = new NotificationService();
-        $notif->hotelApproved($hotel, $hotel['admin_user_id']);
-        AuditLog::record('hotel_approved', 'Hotel', $id);
+        try {
+            $notif = new NotificationService();
+            $notif->hotelApproved($hotel, $hotel['admin_user_id']);
+            AuditLog::record('hotel_approved', 'Hotel', $id);
+        } catch (\Exception $e) {}
         $this->json(['success' => true, 'message' => 'Hotel approved.']);
     }
 
     public function rejectHotel($id) {
         CsrfMiddleware::verify();
         $this->hotelModel->reject($id);
-        AuditLog::record('hotel_rejected', 'Hotel', $id);
+        try { AuditLog::record('hotel_rejected', 'Hotel', $id); } catch (\Exception $e) {}
         $this->json(['success' => true, 'message' => 'Hotel rejected.']);
     }
 
     public function suspendHotel($id) {
         CsrfMiddleware::verify();
         $this->hotelModel->suspend($id);
-        AuditLog::record('hotel_suspended', 'Hotel', $id);
+        try { AuditLog::record('hotel_suspended', 'Hotel', $id); } catch (\Exception $e) {}
         $this->json(['success' => true, 'message' => 'Hotel suspended.']);
     }
 
     public function deleteHotel($id) {
         CsrfMiddleware::verify();
         $this->hotelModel->delete($id);
-        AuditLog::record('hotel_deleted', 'Hotel', $id);
+        try { AuditLog::record('hotel_deleted', 'Hotel', $id); } catch (\Exception $e) {}
         $_SESSION['success'] = 'Hotel deleted.';
         $this->redirect('/admin/hotels');
     }
@@ -220,8 +226,9 @@ class AdminController extends Controller {
             'limit'     => 25,
             'offset'    => (max(1, (int)($_GET['page'] ?? 1)) - 1) * 25,
         ];
-        $bookings = $this->bookingModel->allWithDetails($filters);
-        $revenue  = $this->bookingModel->getRevenueSummary();
+
+        try { $bookings = $this->bookingModel->allWithDetails($filters); } catch (\Exception $e) { $bookings = []; }
+        try { $revenue  = $this->bookingModel->getRevenueSummary(); }     catch (\Exception $e) { $revenue  = ['total_revenue'=>0,'collected'=>0,'total_bookings'=>0,'confirmed'=>0,'checked_in'=>0,'completed'=>0,'cancelled'=>0]; }
         $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
 
         return $this->view('admin/bookings', [
@@ -234,10 +241,11 @@ class AdminController extends Controller {
     }
 
     public function bookingDetail($id) {
-        $booking = $this->bookingModel->getWithDetails($id);
+        try { $booking = $this->bookingModel->getWithDetails($id); } catch (\Exception $e) { $booking = null; }
         if (!$booking) { $_SESSION['error'] = 'Booking not found.'; $this->redirect('/admin/bookings'); }
+        $ref = $booking['booking_ref'] ?? ('#' . $booking['id']);
         return $this->view('admin/booking_detail', [
-            'title'   => 'Booking #' . $booking['booking_ref'] . ' - CHNMS',
+            'title'   => 'Booking ' . $ref . ' - CHNMS',
             'booking' => $booking,
         ]);
     }
@@ -245,7 +253,7 @@ class AdminController extends Controller {
     public function cancelBooking($id) {
         CsrfMiddleware::verify();
         $this->bookingModel->cancel($id);
-        AuditLog::record('booking_cancelled', 'Booking', $id);
+        try { AuditLog::record('booking_cancelled', 'Booking', $id); } catch (\Exception $e) {}
         $this->json(['success' => true]);
     }
 
@@ -253,17 +261,17 @@ class AdminController extends Controller {
     // FINANCE MODULE
     // =============================================
     public function finance() {
-        $revenue      = $this->bookingModel->getRevenueSummary(null, 30);
-        $dailyRevenue = $this->bookingModel->getDailyRevenue(null, 30);
-        $bookings     = $this->bookingModel->allWithDetails(['limit' => 15]);
-        $unreadCount  = $this->notifModel->unreadCount($_SESSION['user_id']);
+        try { $revenue      = $this->bookingModel->getRevenueSummary(null, 30); } catch (\Exception $e) { $revenue = ['total_revenue'=>0,'collected'=>0,'platform_fees'=>0,'pending'=>0,'total_bookings'=>0,'confirmed'=>0,'checked_in'=>0,'completed'=>0,'cancelled'=>0]; }
+        try { $dailyRevenue = $this->bookingModel->getDailyRevenue(null, 30); }  catch (\Exception $e) { $dailyRevenue = []; }
+        try { $bookings     = $this->bookingModel->allWithDetails(['limit' => 15]); } catch (\Exception $e) { $bookings = []; }
+        $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
 
         return $this->view('admin/finance', [
-            'title'       => 'Finance - CHNMS',
-            'revenue'     => $revenue,
-            'dailyRevenue'=> json_encode($dailyRevenue),
-            'bookings'    => $bookings,
-            'unreadCount' => $unreadCount,
+            'title'        => 'Finance - CHNMS',
+            'revenue'      => $revenue,
+            'dailyRevenue' => json_encode($dailyRevenue),
+            'bookings'     => $bookings,
+            'unreadCount'  => $unreadCount,
         ]);
     }
 
@@ -305,13 +313,20 @@ class AdminController extends Controller {
     // TRANSFERS
     // =============================================
     public function transfers() {
-        $status    = Sanitizer::clean($_GET['status'] ?? 'pending');
-        $transfers = $this->transferModel->allWithDetails($status ?: null);
-        $counts    = [
-            'pending'  => $this->transferModel->count("status = 'pending'"),
-            'accepted' => $this->transferModel->count("status = 'accepted'"),
-            'rejected' => $this->transferModel->count("status = 'rejected'"),
-        ];
+        $status = Sanitizer::clean($_GET['status'] ?? 'pending');
+
+        try {
+            $transfers = $this->transferModel->allWithDetails($status ?: null);
+            $counts    = [
+                'pending'  => $this->transferModel->count("status = 'pending'"),
+                'accepted' => $this->transferModel->count("status = 'accepted'"),
+                'rejected' => $this->transferModel->count("status = 'rejected'"),
+            ];
+        } catch (\Exception $e) {
+            $transfers = [];
+            $counts    = ['pending' => 0, 'accepted' => 0, 'rejected' => 0];
+        }
+
         return $this->view('admin/transfers', [
             'title'     => 'Transfer Center - CHNMS',
             'transfers' => $transfers,
