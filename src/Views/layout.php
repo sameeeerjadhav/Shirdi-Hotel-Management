@@ -128,16 +128,16 @@
         <div class="sidebar-brand">CHNMS</div>
         <ul class="nav flex-column">
             <?php if ($_SESSION['role_id'] == 1): // Super Admin ?>
-                <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="/admin/hotels">Hotels</a></li>
-                <li class="nav-item"><a class="nav-link" href="/admin/bookings">Bookings</a></li>
-                <li class="nav-item"><a class="nav-link" href="/admin/finance">Finance</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/hotels">Hotels</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/bookings">Bookings</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/finance">Finance</a></li>
             <?php elseif ($_SESSION['role_id'] == 2): // Hotel Admin ?>
-                <li class="nav-item"><a class="nav-link" href="/hotel/dashboard">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="/hotel/rooms">Rooms</a></li>
-                <li class="nav-item"><a class="nav-link" href="/hotel/bookings">Bookings</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/hotel/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/hotel/rooms">Rooms</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/hotel/bookings">Bookings</a></li>
             <?php endif; ?>
-            <li class="nav-item"><a class="nav-link text-danger" href="/logout">Logout</a></li>
+            <li class="nav-item"><a class="nav-link text-danger" href="<?= BASE_URL ?>/logout">Logout</a></li>
         </ul>
     </div>
     <?php endif; ?>

@@ -66,7 +66,7 @@
         <h5 class="modal-title text-white">Add New Room</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="/hotel/rooms/add" method="POST">
+      <form action="<?= BASE_URL ?>/hotel/rooms/add" method="POST">
           <div class="modal-body">
               <div class="mb-3">
                   <label class="form-label text-white">Room Number</label>

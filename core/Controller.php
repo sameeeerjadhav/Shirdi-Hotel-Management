@@ -27,6 +27,9 @@ class Controller {
     }
     
     protected function redirect($url) {
+        if (strpos($url, '/') === 0) {
+            $url = BASE_URL . $url;
+        }
         header("Location: $url");
         exit();
     }

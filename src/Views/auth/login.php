@@ -5,7 +5,7 @@
                 <h3 class="text-white">CHNMS Login</h3>
                 <p class="text-muted">Enter your credentials to access the system</p>
             </div>
-            <form action="/login" method="POST">
+            <form action="<?= BASE_URL ?>/login" method="POST">
                 <div class="mb-3">
                     <label class="form-label text-white">Email Address</label>
                     <input type="email" name="email" class="form-control" required placeholder="admin@chnms.com">

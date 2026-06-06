@@ -22,7 +22,7 @@
                 </div>
             </div>
 
-            <form action="/checkout/<?= $hotel['id'] ?>" method="POST">
+            <form action="<?= BASE_URL ?>/checkout/<?= $hotel['id'] ?>" method="POST">
                 <h5 class="text-white mb-3">Guest Details</h5>
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">

@@ -5,7 +5,7 @@
                 <h3 style="color: #e14eca;">Partner with CHNMS</h3>
                 <p class="text-muted">Register your hotel to join our centralized booking network.</p>
             </div>
-            <form action="/register-hotel" method="POST" enctype="multipart/form-data">
+            <form action="<?= BASE_URL ?>/register-hotel" method="POST" enctype="multipart/form-data">
                 
                 <h5 class="text-white border-bottom border-secondary pb-2 mb-3">Hotel Administrator Details</h5>
                 <div class="row mb-4">

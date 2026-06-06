@@ -8,7 +8,7 @@
 <div class="row justify-content-center fade-in mb-5">
     <div class="col-md-10">
         <div class="card glass-card p-4">
-            <form action="/search" method="GET" class="row g-3 align-items-end">
+            <form action="<?= BASE_URL ?>/search" method="GET" class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label class="form-label text-white">City / Location</label>
                     <input type="text" name="city" class="form-control" value="<?= htmlspecialchars($city ?? '') ?>" placeholder="e.g. Mumbai" required>
@@ -56,9 +56,9 @@
                             <span class="text-muted small">/ night</span>
                         </div>
                         <?php if($hotel['available_rooms'] > 0): ?>
-                            <a href="/checkout/<?= $hotel['id'] ?>" class="btn btn-success px-4" style="border-radius: 20px;">Book Now</a>
+                            <a href="<?= BASE_URL ?>/checkout/<?= $hotel['id'] ?>" class="btn btn-success px-4" style="border-radius: 20px;">Book Now</a>
                         <?php else: ?>
-                            <a href="/checkout/<?= $hotel['id'] ?>" class="btn btn-danger px-4" style="border-radius: 20px;">Sold Out - Find Alternative</a>
+                            <a href="<?= BASE_URL ?>/checkout/<?= $hotel['id'] ?>" class="btn btn-danger px-4" style="border-radius: 20px;">Sold Out - Find Alternative</a>
                         <?php endif; ?>
                     </div>
                 </div>

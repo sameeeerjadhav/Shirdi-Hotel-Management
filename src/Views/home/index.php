@@ -5,15 +5,15 @@
         <div class="mt-5">
             <?php if(isset($_SESSION['user_id'])): ?>
                 <?php if($_SESSION['role_id'] == 1): ?>
-                    <a href="/admin/dashboard" class="btn btn-lg px-5 py-3 mb-3" style="background-color: #e14eca; color: white; font-weight: bold; border-radius: 30px;">Go to Admin Dashboard</a>
+                    <a href="<?= BASE_URL ?>/admin/dashboard" class="btn btn-lg px-5 py-3 mb-3" style="background-color: #e14eca; color: white; font-weight: bold; border-radius: 30px;">Go to Admin Dashboard</a>
                 <?php else: ?>
-                    <a href="/hotel/dashboard" class="btn btn-lg px-5 py-3 mb-3" style="background-color: #e14eca; color: white; font-weight: bold; border-radius: 30px;">Go to Hotel Dashboard</a>
+                    <a href="<?= BASE_URL ?>/hotel/dashboard" class="btn btn-lg px-5 py-3 mb-3" style="background-color: #e14eca; color: white; font-weight: bold; border-radius: 30px;">Go to Hotel Dashboard</a>
                 <?php endif; ?>
             <?php else: ?>
-                <a href="/login" class="btn btn-lg px-5 py-3 mb-3 me-2" style="background-color: transparent; border: 2px solid #e14eca; color: white; font-weight: bold; border-radius: 30px;">Login to Portal</a>
+                <a href="<?= BASE_URL ?>/login" class="btn btn-lg px-5 py-3 mb-3 me-2" style="background-color: transparent; border: 2px solid #e14eca; color: white; font-weight: bold; border-radius: 30px;">Login to Portal</a>
             <?php endif; ?>
             
-            <a href="/search" class="btn btn-lg px-5 py-3 mb-3 shadow-glass" style="background-color: #00f2c3; color: #1e1e2f; font-weight: bold; border-radius: 30px;">Find a Room</a>
+            <a href="<?= BASE_URL ?>/search" class="btn btn-lg px-5 py-3 mb-3 shadow-glass" style="background-color: #00f2c3; color: #1e1e2f; font-weight: bold; border-radius: 30px;">Find a Room</a>
         </div>
     </div>
     <div class="col-md-6 d-none d-md-block text-center">
