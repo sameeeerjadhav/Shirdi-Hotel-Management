@@ -51,7 +51,9 @@
 <!-- HOTELS GRID -->
 <?php if (empty($hotels)): ?>
 <div class="card" style="padding:64px;text-align:center;">
-    <div style="font-size:48px;margin-bottom:16px;">🏨</div>
+    <div style="width:64px;height:64px;background:#eef2ff;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <i class="fa-solid fa-building" style="font-size:28px;color:#6366f1;"></i>
+    </div>
     <h3 style="font-size:18px;font-weight:700;color:#1e293b;">No hotels found</h3>
     <p style="color:#64748b;margin:8px 0 24px;">
         <?= $search ? "No hotels match your search for \"" . htmlspecialchars($search) . "\"" : "No hotels in this category yet." ?>

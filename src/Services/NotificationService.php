@@ -39,7 +39,7 @@ class NotificationService {
         $this->model->send(
             $hotelAdminUserId,
             'hotel_approved',
-            'Hotel Approved! 🎉',
+            'Hotel Approved!',
             "Congratulations! {$hotel['name']} has been approved and is now live on CHNMS.",
             '/hotel/dashboard'
         );

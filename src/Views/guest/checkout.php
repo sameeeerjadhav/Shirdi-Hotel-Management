@@ -11,7 +11,9 @@
 
     <?php if(isset($_SESSION['transfer_alert'])): ?>
     <div style="max-width:960px;margin:0 auto 20px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
-        <div style="width:40px;height:40px;background:rgba(34,197,94,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔄</div>
+        <div style="width:40px;height:40px;background:rgba(34,197,94,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fa-solid fa-right-left" style="font-size:16px;color:#16a34a;"></i>
+        </div>
         <div>
             <div style="font-size:14px;font-weight:700;color:#22c55e;margin-bottom:2px;">Smart Transfer Applied</div>
             <div style="font-size:13px;color:#86efac;"><?= $_SESSION['transfer_alert']; unset($_SESSION['transfer_alert']); ?></div>

@@ -44,7 +44,9 @@
             <tbody>
                 <?php if (empty($users)): ?>
                 <tr><td colspan="6" style="text-align:center;padding:48px;color:#94a3b8;">
-                    <div style="font-size:32px;margin-bottom:12px;">👥</div>
+                    <div style="width:56px;height:56px;background:#eef2ff;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fa-solid fa-users" style="font-size:22px;color:#6366f1;"></i>
+                    </div>
                     No users found.
                 </td></tr>
                 <?php else: ?>

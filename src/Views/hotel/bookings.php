@@ -48,8 +48,10 @@ $statusBadge = [
                 <?php if (empty($bookings)): ?>
                 <tr>
                     <td colspan="7" style="text-align:center;padding:48px;color:#94a3b8;">
-                        <div style="font-size:32px;margin-bottom:12px;">📋</div>
-                        No bookings yet.
+                        <div style="width:56px;height:56px;background:#eef2ff;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                            <i class="fa-solid fa-calendar-check" style="font-size:22px;color:#6366f1;"></i>
+                        </div>
+                        No bookings found.
                     </td>
                 </tr>
                 <?php else: ?>

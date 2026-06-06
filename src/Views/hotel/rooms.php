@@ -53,7 +53,9 @@
 <!-- FLOOR MAP -->
 <?php if (empty($floorMap)): ?>
 <div class="card" style="padding:64px;text-align:center;">
-    <div style="font-size:48px;margin-bottom:16px;">🏨</div>
+    <div style="width:64px;height:64px;background:#eef2ff;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <i class="fa-solid fa-bed" style="font-size:28px;color:#6366f1;"></i>
+    </div>
     <h3 style="font-size:18px;font-weight:700;color:#1e293b;">No rooms added yet</h3>
     <p style="color:#64748b;margin:8px 0 24px;">Add your first room type, then add rooms to your hotel.</p>
     <button onclick="openAddTypeModal()" class="btn btn-primary" style="display:inline-block;margin-right:10px;">Add Room Type</button>
@@ -75,7 +77,7 @@
         <div style="display:flex;flex-wrap:wrap;gap:12px;">
             <?php
                 $colorMap = [
-                    'available'   => ['border'=>'#10b981','bg'=>'#f0fdf4','text'=>'#065f46','icon'=>'✓'],
+                    'available'   => ['border'=>'#10b981','bg'=>'#f0fdf4','text'=>'#065f46','icon'=>'<i class="fa-solid fa-check"></i>'],
                     'occupied'    => ['border'=>'#ef4444','bg'=>'#fef2f2','text'=>'#991b1b','icon'=>'●'],
                     'reserved'    => ['border'=>'#3b82f6','bg'=>'#eff6ff','text'=>'#1d4ed8','icon'=>'◷'],
                     'cleaning'    => ['border'=>'#f59e0b','bg'=>'#fffbeb','text'=>'#92400e','icon'=>'◌'],
@@ -108,7 +110,7 @@
      box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:1000;transition:right 0.3s ease;overflow-y:auto;padding:24px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
         <h3 style="font-size:18px;font-weight:800;color:#1e293b;" id="drawerTitle">Room Details</h3>
-        <button onclick="closeDrawer()" style="background:none;border:none;font-size:20px;color:#64748b;cursor:pointer;">✕</button>
+        <button onclick="closeDrawer()" style="background:#f1f5f9;border:none;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;font-size:12px;"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div id="drawerContent"></div>
 </div>

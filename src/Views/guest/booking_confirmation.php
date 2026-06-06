@@ -97,7 +97,7 @@ $nights = max(1, (int)((strtotime($b['check_out_date']) - strtotime($b['check_in
 <div class="card">
     <!-- SUCCESS HEADER -->
     <div class="success-header">
-        <div class="checkmark">✓</div>
+        <div class="checkmark"><i class="fa-solid fa-check" style="font-size:34px;"></i></div>
         <div class="success-title">Booking Confirmed!</div>
         <div class="success-sub">Your reservation is all set. See you soon!</div>
         <div class="booking-ref"><?= htmlspecialchars($ref) ?></div>
@@ -152,7 +152,7 @@ $nights = max(1, (int)((strtotime($b['check_out_date']) - strtotime($b['check_in
             </div>
             <div class="billing-row" style="margin-top:10px;">
                 <span style="font-size:12px;color:#94a3b8;">Payment Status</span>
-                <span class="status-paid">✓ Paid</span>
+                <span class="status-paid"><i class="fa-solid fa-check me-1"></i>Paid</span>
             </div>
         </div>
 
@@ -164,7 +164,7 @@ $nights = max(1, (int)((strtotime($b['check_out_date']) - strtotime($b['check_in
 
         <!-- Note -->
         <div class="note">
-            📧 A confirmation has been logged in the system. Please carry a valid ID proof at the time of check-in.
+            <i class="fa-solid fa-circle-info me-1" style="color:#b45309;"></i> A confirmation has been logged in the system. Please carry a valid ID proof at the time of check-in.
         </div>
     </div>
 </div>

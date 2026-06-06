@@ -7,7 +7,7 @@ use App\Middleware\CsrfMiddleware;
 <!-- SECTION: OVERVIEW -->
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
-        <h2 style="font-size:24px;font-weight:800;color:#1e293b;letter-spacing:-0.5px;">Good <?= date('H') < 12 ? 'Morning' : (date('H') < 17 ? 'Afternoon' : 'Evening') ?>, <?= htmlspecialchars(explode(' ', $_SESSION['name'])[0]) ?>! 👋</h2>
+        <h2 style="font-size:24px;font-weight:800;color:#1e293b;letter-spacing:-0.5px;">Good <?= date('H') < 12 ? 'Morning' : (date('H') < 17 ? 'Afternoon' : 'Evening') ?>, <?= htmlspecialchars(explode(' ', $_SESSION['name'])[0]) ?>!</h2>
         <p style="font-size:14px;color:#64748b;margin-top:4px;"><?= date('l, d F Y') ?> &mdash; Platform Overview</p>
     </div>
     <div style="display:flex;gap:10px;">

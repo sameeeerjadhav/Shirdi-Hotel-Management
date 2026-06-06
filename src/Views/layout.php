@@ -228,14 +228,14 @@
            CARDS
         ═══════════════════════════════ */
         .card {
-            background: #fff;
+            background: linear-gradient(160deg, #ffffff 0%, #f9f8ff 100%);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             margin-bottom: 20px;
         }
         .card-header {
-            background: transparent;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
             border-bottom: 1px solid var(--border);
             padding: 16px 20px;
             font-size: 14px;
@@ -251,7 +251,7 @@
            (left colored border + icon on right)
         ═══════════════════════════════ */
         .stat-card {
-            background: #fff;
+            background: linear-gradient(160deg, #ffffff 0%, #f5f4ff 100%);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
@@ -264,35 +264,35 @@
             transition: box-shadow 0.2s, transform 0.2s;
         }
         .stat-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(79,70,229,0.10);
+            transform: translateY(-2px);
         }
 
-        /* TOP colored strip (4px) */
+        /* TOP colored strip */
         .stat-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 3px;
-            background: var(--primary);
+            background: linear-gradient(90deg, #6366f1, #4338ca);
         }
 
-        /* Per-column colors */
+        /* Per-column gradient strips */
         .col-md-3:nth-child(1) .stat-card::before,
         .col-md-4:nth-child(1) .stat-card::before,
-        .col-6:nth-child(1) .stat-card::before { background: #f59e0b; }
+        .col-6:nth-child(1) .stat-card::before { background: linear-gradient(90deg,#f59e0b,#f97316); }
 
         .col-md-3:nth-child(2) .stat-card::before,
         .col-md-4:nth-child(2) .stat-card::before,
-        .col-6:nth-child(2) .stat-card::before { background: #4f46e5; }
+        .col-6:nth-child(2) .stat-card::before { background: linear-gradient(90deg,#6366f1,#4338ca); }
 
         .col-md-3:nth-child(3) .stat-card::before,
         .col-md-4:nth-child(3) .stat-card::before,
-        .col-6:nth-child(3) .stat-card::before { background: #10b981; }
+        .col-6:nth-child(3) .stat-card::before { background: linear-gradient(90deg,#10b981,#059669); }
 
         .col-md-3:nth-child(4) .stat-card::before,
         .col-md-4:nth-child(4) .stat-card::before,
-        .col-6:nth-child(4) .stat-card::before { background: #3b82f6; }
+        .col-6:nth-child(4) .stat-card::before { background: linear-gradient(90deg,#3b82f6,#2563eb); }
 
         .stat-card-content { flex: 1; }
         .stat-card .stat-label, .stat-card .label {
@@ -390,14 +390,15 @@
             color: var(--text-heading);
             padding: 9px 14px;
             transition: border-color 0.15s, box-shadow 0.15s;
-            background: #fff;
+            background: linear-gradient(160deg, #ffffff, #faf9ff);
             font-family: inherit;
         }
         .form-control::placeholder { color: #9ca3af; }
         .form-control:focus, .form-select:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
         }
         .form-text { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
 
@@ -476,33 +477,44 @@
             backdrop-filter: blur(4px);
         }
         .btn-light {
-            background: #fff;
-            border: 1px solid var(--border);
+            background: linear-gradient(160deg, #ffffff 0%, #f5f4ff 100%);
+            border: 1px solid #ddd9f5;
             color: var(--text-body);
-            border-radius: var(--radius-sm);
+            border-radius: 99px;
             font-size: 13.5px;
             font-weight: 500;
-            padding: 8px 16px;
+            padding: 9px 18px;
             cursor: pointer;
-            transition: background 0.15s, border-color 0.15s;
+            transition: all 0.15s ease;
             display: inline-flex; align-items: center; gap: 6px;
             text-decoration: none;
             font-family: inherit;
+            box-shadow: 0 1px 3px rgba(99,102,241,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
         }
-        .btn-light:hover { background: #f9fafb; border-color: #c4c9d4; color: var(--text-heading); }
+        .btn-light:hover {
+            background: linear-gradient(160deg, #f0effe 0%, #ece9ff 100%);
+            border-color: #c4bfee;
+            color: var(--text-heading);
+            box-shadow: 0 2px 8px rgba(99,102,241,0.14);
+        }
 
         .btn-outline-primary {
-            background: transparent;
-            border: 1px solid var(--primary);
+            background: linear-gradient(160deg, #eef2ff 0%, #e8e4ff 100%);
+            border: 1px solid #a5b4fc;
             color: var(--primary);
-            border-radius: var(--radius-sm);
+            border-radius: 99px;
             font-size: 13px; font-weight: 600;
-            padding: 8px 16px; cursor: pointer;
-            transition: background 0.15s;
+            padding: 9px 18px; cursor: pointer;
+            transition: all 0.15s ease;
             display: inline-flex; align-items: center; gap: 6px;
             text-decoration: none; font-family: inherit;
+            box-shadow: 0 1px 3px rgba(99,102,241,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
         }
-        .btn-outline-primary:hover { background: var(--primary-light); }
+        .btn-outline-primary:hover {
+            background: linear-gradient(160deg, #e0e7ff 0%, #ddd6ff 100%);
+            border-color: #818cf8;
+            box-shadow: 0 3px 10px rgba(99,102,241,0.2);
+        }
 
         /* ═══════════════════════════════
            IDENTITY CELL (table rows)
@@ -788,7 +800,7 @@
         <div style="font-size:16px;font-weight:800;color:#1e293b;">Notifications</div>
         <div style="display:flex;gap:8px;">
             <button onclick="markAllRead()" style="font-size:12px;font-weight:600;color:#4338ca;background:none;border:none;cursor:pointer;">Mark all read</button>
-            <button onclick="toggleNotifDrawer()" style="background:none;border:none;font-size:18px;color:#64748b;cursor:pointer;">✕</button>
+            <button onclick="toggleNotifDrawer()" style="background:#f1f5f9;border:none;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;font-size:12px;"><i class="fa-solid fa-xmark"></i></button>
         </div>
     </div>
     <div id="notifList" style="padding:0;"><div style="padding:32px;text-align:center;color:#94a3b8;">Loading...</div></div>
@@ -804,10 +816,15 @@ const BASE_URL = '<?= BASE_URL ?>';
 
 // ---- Toast System ----
 function showToast(msg, type = 'info') {
-    const icons = {success:'✓', error:'✕', warning:'⚠', info:'ℹ'};
+    const faIcons = {
+        success: '<i class="fa-solid fa-circle-check" style="color:#10b981;font-size:15px;"></i>',
+        error:   '<i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:15px;"></i>',
+        warning: '<i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;font-size:15px;"></i>',
+        info:    '<i class="fa-solid fa-circle-info" style="color:#3b82f6;font-size:15px;"></i>',
+    };
     const t = document.createElement('div');
     t.className = 'toast-item ' + type;
-    t.innerHTML = `<span style="font-size:16px;">${icons[type]||'ℹ'}</span> ${msg}`;
+    t.innerHTML = `${faIcons[type]||faIcons.info} ${msg}`;
     document.getElementById('toast-container').appendChild(t);
     setTimeout(() => { t.style.animation='slideOut 0.3s ease forwards'; setTimeout(()=>t.remove(),300); }, 3500);
 }
@@ -846,14 +863,21 @@ async function loadNotifications() {
     const list = document.getElementById('notifList');
     if (!list) return;
     if (!data.notifications || data.notifications.length === 0) {
-        list.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">🔔 No notifications yet</div>';
+        list.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8;font-size:13px;"><i class="fa-regular fa-bell" style="font-size:28px;display:block;margin-bottom:10px;"></i>No notifications yet</div>';
         return;
     }
-    const icons = {booking_created:'📋',payment_received:'💰',hotel_approved:'✅',transfer_request:'↔️',checkin:'🔑',checkout:'🚪'};
+    const faIconMap = {
+        booking_created:  '<i class="fa-solid fa-calendar-check" style="color:#4338ca;"></i>',
+        payment_received: '<i class="fa-solid fa-indian-rupee-sign" style="color:#10b981;"></i>',
+        hotel_approved:   '<i class="fa-solid fa-building-circle-check" style="color:#10b981;"></i>',
+        transfer_request: '<i class="fa-solid fa-right-left" style="color:#f59e0b;"></i>',
+        checkin:          '<i class="fa-solid fa-door-open" style="color:#3b82f6;"></i>',
+        checkout:         '<i class="fa-solid fa-door-closed" style="color:#64748b;"></i>',
+    };
     list.innerHTML = data.notifications.map(n => `
         <div class="notif-item ${n.is_read == 0 ? 'unread' : ''}" onclick="readNotif(${n.id},'${n.link || ''}')">
             <div style="display:flex;gap:12px;align-items:flex-start;">
-                <span style="font-size:20px;flex-shrink:0;">${icons[n.type]||'🔔'}</span>
+                <div style="width:34px;height:34px;background:#eef2ff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${faIconMap[n.type]||'<i class="fa-solid fa-bell" style="color:#4338ca;"></i>'}</div>
                 <div>
                     <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:2px;">${n.title}</div>
                     <div style="font-size:12px;color:#64748b;">${n.message||''}</div>
