@@ -405,23 +405,75 @@
            BUTTONS
         ═══════════════════════════════ */
         .btn-primary {
-            background: var(--primary);
-            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 99px;                            /* pill shape */
             border: none;
-            border-radius: var(--radius-sm);
-            font-size: 13.5px;
-            font-weight: 600;
-            padding: 9px 18px;
             cursor: pointer;
-            transition: background 0.15s, box-shadow 0.15s;
-            display: inline-flex; align-items: center; gap: 6px;
-            text-decoration: none;
             font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+
+            /* ✦ THE GRADIENT — matches the reference exactly */
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 50%, #3730a3 100%);
+
+            /* ✦ GLOW + depth */
+            box-shadow:
+                0 4px 15px rgba(67, 56, 202, 0.45),
+                0 1px 3px rgba(67, 56, 202, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+            transition: all 0.18s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        /* Inner shine layer */
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.12), transparent);
+            border-radius: 99px 99px 0 0;
+            pointer-events: none;
+        }
+
         .btn-primary:hover {
-            background: var(--primary-hover);
-            color: white;
-            box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+            background: linear-gradient(135deg, #818cf8 0%, #4f46e5 50%, #3730a3 100%);
+            box-shadow:
+                0 6px 20px rgba(67, 56, 202, 0.55),
+                0 2px 6px rgba(67, 56, 202, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(67, 56, 202, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Badge inside primary button (like the "0" count in reference) */
+        .btn-primary .btn-badge {
+            background: rgba(255, 255, 255, 0.22);
+            color: #fff;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            min-width: 20px;
+            text-align: center;
+            line-height: 1.4;
+            backdrop-filter: blur(4px);
         }
         .btn-light {
             background: #fff;
