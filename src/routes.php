@@ -16,6 +16,11 @@ $router->get('/',               [HomeController::class, 'index']);
 $router->get('/login',          [AuthController::class, 'showLogin']);
 $router->post('/login',         [AuthController::class, 'login']);
 $router->get('/logout',         [AuthController::class, 'logout']);
+
+// Profile (all authenticated users)
+use App\Controllers\ProfileController;
+$router->get('/profile',        [ProfileController::class, 'show']);
+$router->post('/profile',       [ProfileController::class, 'update']);
 $router->get('/register-hotel', [HomeController::class, 'registerHotelForm']);
 $router->post('/register-hotel',[HomeController::class, 'registerHotelSubmit']);
 

@@ -338,6 +338,51 @@
         /* Skeleton */
         .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 6px; }
         @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* ===== USER DROPDOWN ===== */
+        .user-dropdown { position: relative; }
+        .user-chip { cursor: pointer; transition: background 0.15s; border-radius: 12px; padding: 6px 10px; }
+        .user-chip:hover { background: #f1f5f9; }
+        .user-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 260px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+            z-index: 2000;
+            overflow: hidden;
+            animation: dropDown 0.18s ease;
+        }
+        .user-dropdown-menu.open { display: block; }
+        @keyframes dropDown {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0)  scale(1); }
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: #374151;
+            font-size: 13px;
+            transition: background 0.13s;
+            cursor: pointer;
+        }
+        .dropdown-item:hover { background: #f8fafc; }
+        .dropdown-item i {
+            width: 32px; height: 32px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; color: #4338ca;
+            flex-shrink: 0;
+        }
+        .dropdown-item-title { font-size: 13px; font-weight: 700; color: #1e293b; }
+        .dropdown-item-sub   { font-size: 11px; color: #94a3b8; margin-top: 1px; }
     </style>
 </head>
 <body>
@@ -395,23 +440,79 @@
             <div class="topbar-title"><?= htmlspecialchars($title ?? 'Dashboard') ?></div>
             <div class="topbar-subtitle"><?= date('l, d F Y') ?></div>
         </div>
-        <div style="display:flex;align-items:center;gap:16px;">
-            <!-- Dark Mode Toggle -->
-            <button id="darkToggle" onclick="toggleDark()" style="background:#f1f5f9;border:none;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;" title="Toggle Dark Mode">🌙</button>
+        <div style="display:flex;align-items:center;gap:12px;">
             <!-- Notification Bell -->
-            <div class="notif-bell" onclick="toggleNotifDrawer()">
-                <div style="width:36px;height:36px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <div class="notif-bell" onclick="toggleNotifDrawer()" title="Notifications">
+                <div style="width:38px;height:38px;background:#f1f5f9;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                     <i class="fa-regular fa-bell" style="font-size:16px;color:#64748b;"></i>
                 </div>
                 <span class="notif-badge <?= isset($unreadCount) && $unreadCount > 0 ? 'has-unread' : '' ?>" id="notifBadge"><?= $unreadCount ?? 0 ?></span>
             </div>
-            <div class="user-chip">
-                <div class="avatar"><?= strtoupper(substr($_SESSION['name'], 0, 1)) ?></div>
-                <div>
-                    <div class="user-chip-name"><?= htmlspecialchars($_SESSION['name']) ?></div>
-                    <div class="user-chip-role"><?= $_SESSION['role_id'] == 1 ? 'Super Admin' : ($_SESSION['hotel_name'] ?? 'Hotel Admin') ?></div>
+
+            <!-- USER DROPDOWN -->
+            <div class="user-dropdown" id="userDropdown">
+                <div class="user-chip" onclick="toggleUserMenu()" id="userChipBtn">
+                    <div class="avatar"><?= strtoupper(substr($_SESSION['name'], 0, 1)) ?></div>
+                    <div>
+                        <div class="user-chip-name"><?= htmlspecialchars($_SESSION['name']) ?></div>
+                        <div class="user-chip-role"><?= $_SESSION['role_id'] == 1 ? 'Super Admin' : ($_SESSION['hotel_name'] ?? 'Hotel Admin') ?></div>
+                    </div>
+                    <i class="fa-solid fa-chevron-down" id="dropChevron" style="font-size:11px;color:#94a3b8;transition:transform 0.2s;"></i>
                 </div>
-                <i class="fa-solid fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+
+                <!-- DROPDOWN MENU -->
+                <div class="user-dropdown-menu" id="userDropdownMenu">
+                    <!-- User Info Header -->
+                    <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#4338ca,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;flex-shrink:0;">
+                                <?= strtoupper(substr($_SESSION['name'], 0, 1)) ?>
+                            </div>
+                            <div>
+                                <div style="font-size:14px;font-weight:800;color:#1e293b;"><?= htmlspecialchars($_SESSION['name']) ?></div>
+                                <div style="font-size:12px;color:#94a3b8;margin-top:1px;"><?= $_SESSION['role_id'] == 1 ? 'Super Admin' : ($_SESSION['hotel_name'] ?? 'Hotel Admin') ?></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Menu Items -->
+                    <div style="padding:8px 0;">
+                        <a href="<?= BASE_URL ?>/profile" class="dropdown-item">
+                            <i class="fa-solid fa-user"></i>
+                            <div>
+                                <div class="dropdown-item-title">My Profile</div>
+                                <div class="dropdown-item-sub">Account settings &amp; password</div>
+                            </div>
+                        </a>
+                        <?php if ($_SESSION['role_id'] == 1): ?>
+                        <a href="<?= BASE_URL ?>/admin/hotels" class="dropdown-item">
+                            <i class="fa-solid fa-building"></i>
+                            <div>
+                                <div class="dropdown-item-title">Manage Hotels</div>
+                                <div class="dropdown-item-sub">Hotel network overview</div>
+                            </div>
+                        </a>
+                        <?php endif; ?>
+                        <a href="<?= BASE_URL ?>/admin/search" class="dropdown-item">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <div>
+                                <div class="dropdown-item-title">Room Search</div>
+                                <div class="dropdown-item-sub">Search available rooms</div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Sign Out -->
+                    <div style="padding:8px 0;border-top:1px solid #f1f5f9;">
+                        <a href="<?= BASE_URL ?>/logout" class="dropdown-item" style="--item-color:#ef4444;">
+                            <i class="fa-solid fa-arrow-right-from-bracket" style="color:#ef4444;"></i>
+                            <div>
+                                <div class="dropdown-item-title" style="color:#ef4444;">Sign Out</div>
+                                <div class="dropdown-item-sub">End your session</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -470,17 +571,26 @@ function showToast(msg, type = 'info') {
     setTimeout(() => { t.style.animation='slideOut 0.3s ease forwards'; setTimeout(()=>t.remove(),300); }, 3500);
 }
 
-// ---- Dark Mode ----
-function toggleDark() {
-    document.documentElement.classList.toggle('dark-mode');
-    const isDark = document.documentElement.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDark);
-    document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
+// ---- User Dropdown ----
+function toggleUserMenu(e) {
+    if (e) e.stopPropagation();
+    const menu    = document.getElementById('userDropdownMenu');
+    const chevron = document.getElementById('dropChevron');
+    const isOpen  = menu.classList.contains('open');
+    menu.classList.toggle('open', !isOpen);
+    if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
 }
-if (localStorage.getItem('darkMode') === 'true') {
-    document.documentElement.classList.add('dark-mode');
-    document.getElementById('darkToggle').textContent = '☀️';
-}
+
+// Close dropdown when clicking anywhere outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('userDropdown');
+    const menu     = document.getElementById('userDropdownMenu');
+    const chevron  = document.getElementById('dropChevron');
+    if (dropdown && !dropdown.contains(e.target)) {
+        menu && menu.classList.remove('open');
+        if (chevron) chevron.style.transform = '';
+    }
+});
 
 // ---- Notifications ----
 let notifOpen = false;
