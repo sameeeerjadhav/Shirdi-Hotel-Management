@@ -33,7 +33,7 @@ class TransferEngine {
 
             // Filter by room type if specified
             if ($roomType) {
-                $available = array_filter($available, fn($r) => stripos($r['type_name'], $roomType) !== false);
+                $available = array_filter($available, function($r) use ($roomType) { return stripos($r['type_name'], $roomType) !== false; });
                 $available = array_values($available);
             }
 
@@ -50,7 +50,7 @@ class TransferEngine {
         }
 
         // Sort by score descending
-        usort($alternatives, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort($alternatives, function($a, $b) { return $b['score'] <=> $a['score']; });
 
         return array_slice($alternatives, 0, 5);
     }

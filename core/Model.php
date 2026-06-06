@@ -7,12 +7,11 @@ use Core\Database;
 abstract class Model {
     protected $table = '';
     protected $primaryKey = 'id';
-    protected $db;
+    // $this->pdo is the raw PDO connection
     protected $pdo;
 
     public function __construct() {
-        $this->db = Database::getInstance();
-        $this->pdo = $this->db->getConnection();
+        $this->pdo = Database::getInstance()->getConnection();
     }
 
     // ---- FIND BY PRIMARY KEY ----
@@ -33,7 +32,7 @@ abstract class Model {
     public function all($orderBy = null, $limit = null) {
         $sql = "SELECT * FROM {$this->table}";
         if ($orderBy) $sql .= " ORDER BY {$orderBy}";
-        if ($limit)   $sql .= " LIMIT {$limit}";
+        if ($limit)   $sql .= " LIMIT " . (int)$limit;
         return $this->pdo->query($sql)->fetchAll();
     }
 
@@ -48,7 +47,7 @@ abstract class Model {
 
     // ---- INSERT ----
     public function create(array $data) {
-        $columns = implode(', ', array_keys($data));
+        $columns      = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
         $stmt = $this->pdo->prepare(
             "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})"
@@ -59,11 +58,11 @@ abstract class Model {
 
     // ---- UPDATE ----
     public function update($id, array $data) {
-        $set = implode(', ', array_map(fn($col) => "{$col} = ?", array_keys($data)));
+        $set  = implode(', ', array_map(function($col) { return "{$col} = ?"; }, array_keys($data)));
         $stmt = $this->pdo->prepare(
             "UPDATE {$this->table} SET {$set} WHERE {$this->primaryKey} = ?"
         );
-        $stmt->execute([...array_values($data), $id]);
+        $stmt->execute(array_merge(array_values($data), [$id]));
         return $stmt->rowCount();
     }
 
@@ -81,17 +80,17 @@ abstract class Model {
 
         $sql = "SELECT * FROM {$this->table}";
         if ($where) $sql .= " WHERE {$where}";
-        $sql .= " ORDER BY {$orderBy} LIMIT {$perPage} OFFSET {$offset}";
+        $sql .= " ORDER BY {$orderBy} LIMIT " . (int)$perPage . " OFFSET " . (int)$offset;
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
 
         return [
-            'data'        => $stmt->fetchAll(),
-            'total'       => $total,
-            'per_page'    => $perPage,
-            'current_page'=> $page,
-            'last_page'   => (int) ceil($total / $perPage),
+            'data'         => $stmt->fetchAll(),
+            'total'        => $total,
+            'per_page'     => $perPage,
+            'current_page' => $page,
+            'last_page'    => (int) ceil($total / $perPage),
         ];
     }
 

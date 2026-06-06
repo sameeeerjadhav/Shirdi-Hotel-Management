@@ -352,7 +352,7 @@
 
     <?php
     $curPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $isActive = fn($p) => (str_starts_with($curPath, $p)) ? 'active' : '';
+    $isActive = function($p) use ($curPath) { return (strpos($curPath, $p) === 0) ? 'active' : ''; };
     ?>
     <?php if ($_SESSION['role_id'] == 1): // Super Admin ?>
     <div class="sidebar-section">Main</div>

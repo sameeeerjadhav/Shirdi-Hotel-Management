@@ -37,13 +37,28 @@ class AdminController extends Controller {
     // DASHBOARD
     // =============================================
     public function dashboard() {
-        $stats        = $this->hotelModel->getNetworkStats();
-        $recentHotels = $this->hotelModel->allWithAdmin('pending');
-        $recentBooks  = $this->bookingModel->allWithDetails(['limit' => 5]);
-        $revenue      = $this->bookingModel->getRevenueSummary(null, 30);
-        $dailyRevenue = $this->bookingModel->getDailyRevenue(null, 30);
-        $pendingTransfers = $this->transferModel->countPending();
-        $unreadCount  = $this->notifModel->unreadCount($_SESSION['user_id']);
+        try {
+            $stats        = $this->hotelModel->getNetworkStats();
+            $recentHotels = $this->hotelModel->allWithAdmin('pending');
+            $recentBooks  = $this->bookingModel->allWithDetails(['limit' => 5]);
+            $revenue      = $this->bookingModel->getRevenueSummary(null, 30);
+            $dailyRevenue = $this->bookingModel->getDailyRevenue(null, 30);
+        } catch (\Exception $e) {
+            // Tables may not have new columns yet — use safe defaults
+            $stats        = ['total_hotels'=>0,'active_hotels'=>0,'pending_hotels'=>0,'total_rooms'=>0,'occupied_rooms'=>0,'available_rooms'=>0,'total_revenue'=>0,'platform_revenue'=>0];
+            $recentHotels = [];
+            $recentBooks  = [];
+            $revenue      = ['total_revenue'=>0,'collected'=>0,'pending'=>0,'platform_fees'=>0,'total_bookings'=>0,'confirmed'=>0,'checked_in'=>0,'completed'=>0,'cancelled'=>0];
+            $dailyRevenue = [];
+        }
+
+        try {
+            $pendingTransfers = $this->transferModel->countPending();
+            $unreadCount      = $this->notifModel->unreadCount($_SESSION['user_id']);
+        } catch (\Exception $e) {
+            $pendingTransfers = 0;
+            $unreadCount      = 0;
+        }
 
         return $this->view('admin/dashboard', [
             'title'            => 'Admin Dashboard - CHNMS',

@@ -51,7 +51,7 @@ class Sanitizer {
                     $errors[$field] = ucfirst(str_replace('_', ' ', $field)) . ' is required.';
                     break;
                 }
-                if (str_starts_with($r, 'min:')) {
+                if (strpos($r, 'min:') === 0) {
                     $min = (int) substr($r, 4);
                     if (strlen($value) < $min) {
                         $errors[$field] = ucfirst(str_replace('_', ' ', $field)) . " must be at least {$min} characters.";

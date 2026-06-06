@@ -30,13 +30,24 @@ class HotelController extends Controller {
         $this->notifModel   = new Notification();
 
         // Load hotel for this admin
-        $hotel = $this->hotelModel->findByAdminUser($_SESSION['user_id']);
-        if (!$hotel) {
-            $_SESSION['error'] = 'No hotel linked to your account. Contact admin.';
-            session_destroy();
-            $this->redirect('/login');
+        try {
+            $hotel = $this->hotelModel->findByAdminUser($_SESSION['user_id']);
+        } catch (\Exception $e) {
+            $hotel = null;
         }
-        $_SESSION['hotel_id'] = $hotel['id'];
+
+        if (!$hotel) {
+            // If no hotel linked, show friendly message instead of crashing
+            if (!isset($_SESSION['hotel_id'])) {
+                $_SESSION['error'] = 'No hotel linked to your account. Contact the super admin.';
+                session_destroy();
+                $this->redirect('/login');
+            }
+            // Reload from cached session if available
+            $hotel = ['id' => $_SESSION['hotel_id'], 'name' => $_SESSION['hotel_name'] ?? 'My Hotel'];
+        }
+
+        $_SESSION['hotel_id']   = $hotel['id'];
         $_SESSION['hotel_name'] = $hotel['name'];
         $this->hotelId = $hotel['id'];
     }
