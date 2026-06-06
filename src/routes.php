@@ -21,5 +21,11 @@ $router->get('/hotel/rooms', [HotelController::class, 'rooms']);
 $router->post('/hotel/rooms/add', [HotelController::class, 'addRoom']);
 
 // Public/Guest Routes
+use App\Controllers\BookingController;
+
 $router->get('/register-hotel', [HomeController::class, 'registerHotelForm']);
 $router->post('/register-hotel', [HomeController::class, 'registerHotelSubmit']);
+
+$router->get('/search', [BookingController::class, 'search']);
+$router->get('/checkout/{hotel_id}', [BookingController::class, 'checkoutForm']);
+$router->post('/checkout/{hotel_id}', [BookingController::class, 'processCheckout']);
