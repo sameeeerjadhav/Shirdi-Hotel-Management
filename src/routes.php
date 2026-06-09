@@ -99,6 +99,19 @@ $router->get('/hotel/bookings',               [HotelController::class, 'bookings
 $router->post('/hotel/bookings/{id}/checkin', [HotelController::class, 'checkIn']);
 $router->post('/hotel/bookings/{id}/checkout',[HotelController::class, 'checkOut']);
 
+// Finance
+$router->get('/hotel/finance', [HotelController::class, 'finance']);
+
+// Guests
+$router->get('/hotel/guests', [HotelController::class, 'guests']);
+
+// Transfers
+$router->get('/hotel/transfers', [HotelController::class, 'transfers']);
+
+// Settings
+$router->get('/hotel/settings',  [HotelController::class, 'settings']);
+$router->post('/hotel/settings', [HotelController::class, 'updateSettings']);
+
 // =============================================
 // NOTIFICATIONS API
 // =============================================

@@ -753,6 +753,24 @@ $__hotelLogoUrl= !empty($__layoutUser['hotel_logo']) ? BASE_URL . '/' . ltrim($_
     <ul class="nav flex-column">
         <li class="nav-item"><a class="nav-link <?= $isActive('/hotel/rooms') ?>" href="<?= BASE_URL ?>/hotel/rooms"><i class="fa-solid fa-bed"></i> Rooms</a></li>
         <li class="nav-item"><a class="nav-link <?= $isActive('/hotel/bookings') ?>" href="<?= BASE_URL ?>/hotel/bookings"><i class="fa-solid fa-calendar-check"></i> Bookings</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/hotel/guests') ?>" href="<?= BASE_URL ?>/hotel/guests"><i class="fa-solid fa-users"></i> Guests</a></li>
+        <li class="nav-item">
+            <a class="nav-link <?= $isActive('/hotel/transfers') ?>" href="<?= BASE_URL ?>/hotel/transfers">
+                <i class="fa-solid fa-right-left"></i> Transfers
+                <?php if (isset($pendingTransfers) && $pendingTransfers > 0): ?>
+                <span style="background:#ef4444;color:white;border-radius:99px;font-size:10px;padding:1px 6px;margin-left:4px;font-weight:700;"><?= $pendingTransfers ?></span>
+                <?php endif; ?>
+            </a>
+        </li>
+    </ul>
+    <div class="sidebar-section">Finance</div>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link <?= $isActive('/hotel/finance') ?>" href="<?= BASE_URL ?>/hotel/finance"><i class="fa-solid fa-chart-line"></i> Revenue</a></li>
+    </ul>
+    <div class="sidebar-section">Settings</div>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link <?= $isActive('/hotel/settings') ?>" href="<?= BASE_URL ?>/hotel/settings"><i class="fa-solid fa-gear"></i> Hotel Settings</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/profile') ?>" href="<?= BASE_URL ?>/profile"><i class="fa-solid fa-circle-user"></i> My Profile</a></li>
     </ul>
     <?php endif; ?>
 

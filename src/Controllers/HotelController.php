@@ -229,6 +229,180 @@ class HotelController extends Controller {
     }
 
     // =============================================
+    // FINANCE MODULE
+    // =============================================
+    public function finance() {
+        $revenue     = $this->bookingModel->getRevenueSummary($this->hotelId, 30);
+        $dailyRev    = $this->bookingModel->getDailyRevenue($this->hotelId, 30);
+        $bookings    = $this->bookingModel->allWithDetails(['hotel_id' => $this->hotelId, 'limit' => 50]);
+        $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
+
+        return $this->view('hotel/finance', [
+            'title'        => 'Finance - ' . ($_SESSION['hotel_name'] ?? 'Hotel'),
+            'revenue'      => $revenue,
+            'dailyRevenue' => json_encode($dailyRev),
+            'bookings'     => $bookings,
+            'unreadCount'  => $unreadCount,
+        ]);
+    }
+
+    // =============================================
+    // GUESTS MODULE
+    // =============================================
+    public function guests() {
+        $search = trim($_GET['search'] ?? '');
+        try {
+            $pdo = $this->bookingModel->getPdo();
+            $where = "b.hotel_id = ?";
+            $params = [$this->hotelId];
+            if ($search) {
+                $where .= " AND (b.guest_name LIKE ? OR b.guest_email LIKE ? OR b.guest_phone LIKE ?)";
+                $s = '%'.$search.'%';
+                $params = array_merge($params, [$s, $s, $s]);
+            }
+            $stmt = $pdo->prepare(
+                "SELECT b.guest_name, b.guest_email, b.guest_phone,
+                        COUNT(b.id)          AS stay_count,
+                        SUM(b.total_amount)  AS total_spent,
+                        MAX(b.check_in)      AS last_stay
+                 FROM bookings b
+                 WHERE {$where}
+                 GROUP BY b.guest_email, b.guest_name, b.guest_phone
+                 ORDER BY last_stay DESC
+                 LIMIT 100"
+            );
+            $stmt->execute($params);
+            $guests = $stmt->fetchAll();
+
+            // Stats
+            $stats = $pdo->prepare(
+                "SELECT
+                    SUM(CASE WHEN status='checked_in' THEN 1 ELSE 0 END)                          AS checked_in,
+                    SUM(CASE WHEN MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW()) THEN 1 ELSE 0 END) AS this_month,
+                    SUM(CASE WHEN cnt > 1 THEN 1 ELSE 0 END) AS repeat_count
+                 FROM (
+                     SELECT guest_email, MAX(status) AS status, created_at, COUNT(*) AS cnt
+                     FROM bookings WHERE hotel_id = ?
+                     GROUP BY guest_email
+                 ) x"
+            );
+            $stats->execute([$this->hotelId]);
+            $guestStats = $stats->fetch();
+            $guestStats['repeat'] = $guestStats['repeat_count'] ?? 0;
+        } catch (\Exception $e) {
+            $guests = [];
+            $guestStats = ['checked_in'=>0,'this_month'=>0,'repeat'=>0];
+        }
+        $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
+
+        return $this->view('hotel/guests', [
+            'title'       => 'Guests - ' . ($_SESSION['hotel_name'] ?? 'Hotel'),
+            'guests'      => $guests,
+            'guestStats'  => $guestStats,
+            'search'      => $search,
+            'unreadCount' => $unreadCount,
+        ]);
+    }
+
+    // =============================================
+    // TRANSFERS MODULE
+    // =============================================
+    public function transfers() {
+        $status = $_GET['status'] ?? 'all';
+        try {
+            $pdo = $this->bookingModel->getPdo();
+            $where = "tr.hotel_id = ?";
+            $params = [$this->hotelId];
+            if ($status !== 'all') {
+                $where .= " AND tr.status = ?";
+                $params[] = $status;
+            }
+            $stmt = $pdo->prepare(
+                "SELECT tr.*, b.booking_ref, b.guest_name,
+                        fr.room_number AS from_room, tor.room_number AS to_room
+                 FROM transfer_requests tr
+                 LEFT JOIN bookings b ON b.id = tr.booking_id
+                 LEFT JOIN rooms fr   ON fr.id = tr.from_room_id
+                 LEFT JOIN rooms tor  ON tor.id = tr.to_room_id
+                 WHERE {$where}
+                 ORDER BY tr.created_at DESC"
+            );
+            $stmt->execute($params);
+            $transfers = $stmt->fetchAll();
+
+            // Pending count for badge
+            $ps = $pdo->prepare("SELECT COUNT(*) FROM transfer_requests WHERE hotel_id = ? AND status='pending'");
+            $ps->execute([$this->hotelId]);
+            $pendingCount = (int) $ps->fetchColumn();
+        } catch (\Exception $e) {
+            $transfers    = [];
+            $pendingCount = 0;
+        }
+        $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
+
+        return $this->view('hotel/transfers', [
+            'title'        => 'Transfers - ' . ($_SESSION['hotel_name'] ?? 'Hotel'),
+            'transfers'    => $transfers,
+            'activeFilter' => $status,
+            'pendingCount' => $pendingCount,
+            'unreadCount'  => $unreadCount,
+        ]);
+    }
+
+    // =============================================
+    // SETTINGS MODULE
+    // =============================================
+    public function settings() {
+        $hotel = $this->hotelModel->find($this->hotelId);
+        $unreadCount = $this->notifModel->unreadCount($_SESSION['user_id']);
+
+        return $this->view('hotel/settings', [
+            'title'      => 'Settings - ' . ($_SESSION['hotel_name'] ?? 'Hotel'),
+            'hotel'      => $hotel,
+            'unreadCount'=> $unreadCount,
+        ]);
+    }
+
+    public function updateSettings() {
+        CsrfMiddleware::verify();
+        $action = $_POST['action'] ?? 'basic';
+
+        if ($action === 'basic') {
+            $data = [
+                'name'        => trim(strip_tags($_POST['name']        ?? '')),
+                'owner_name'  => trim(strip_tags($_POST['owner_name']  ?? '')),
+                'email'       => trim(strip_tags($_POST['email']       ?? '')),
+                'phone'       => trim(strip_tags($_POST['phone']       ?? '')),
+                'description' => trim(strip_tags($_POST['description'] ?? '')),
+                'city'        => trim(strip_tags($_POST['city']        ?? '')),
+                'state'       => trim(strip_tags($_POST['state']       ?? '')),
+                'pincode'     => trim(strip_tags($_POST['pincode']     ?? '')),
+            ];
+            if (empty($data['name'])) {
+                $_SESSION['error'] = 'Hotel name cannot be empty.';
+                $this->redirect('/hotel/settings');
+            }
+            $this->hotelModel->update($this->hotelId, $data);
+            $_SESSION['hotel_name'] = $data['name'];
+            $_SESSION['success']    = 'Hotel information updated.';
+        }
+
+        if ($action === 'banking') {
+            $data = [
+                'gst_number'  => trim(strip_tags($_POST['gst_number']  ?? '')),
+                'pan_number'  => trim(strip_tags($_POST['pan_number']  ?? '')),
+                'bank_name'   => trim(strip_tags($_POST['bank_name']   ?? '')),
+                'bank_account'=> trim(strip_tags($_POST['bank_account']?? '')),
+                'bank_ifsc'   => trim(strip_tags($_POST['bank_ifsc']   ?? '')),
+            ];
+            $this->hotelModel->update($this->hotelId, $data);
+            $_SESSION['success'] = 'Banking details updated.';
+        }
+
+        $this->redirect('/hotel/settings');
+    }
+
+    // =============================================
     // HELPERS
     // =============================================
     private function uploadImage($file) {

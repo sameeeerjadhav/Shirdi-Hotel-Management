@@ -14,6 +14,11 @@ abstract class Model {
         $this->pdo = Database::getInstance()->getConnection();
     }
 
+    // Expose PDO for complex raw queries in controllers
+    public function getPdo() {
+        return $this->pdo;
+    }
+
     // ---- FIND BY PRIMARY KEY ----
     public function find($id) {
         $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE {$this->primaryKey} = ?");
