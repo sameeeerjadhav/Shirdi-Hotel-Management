@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? 'CHNMS') ?></title>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?= BASE_URL ?>/favicon.png">
-    <link rel="apple-touch-icon" href="<?= BASE_URL ?>/favicon.png">
+    <!-- Favicon — inline SVG data URI, zero path dependency -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234338ca'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Inter%2CArial%2Csans-serif' font-weight='800' font-size='38' fill='white'%3EH%3C/text%3E%3C/svg%3E">
+    <link rel="alternate icon" type="image/png" href="<?= BASE_URL ?>/favicon.png">
     <meta name="theme-color" content="#4338ca">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
