@@ -311,29 +311,36 @@ class HotelController extends Controller {
         $status = $_GET['status'] ?? 'all';
         try {
             $pdo = $this->bookingModel->getPdo();
-            $where = "tr.hotel_id = ?";
-            $params = [$this->hotelId];
+            // booking_transfers = hotel-to-hotel transfers
+            $where  = 'bt.from_hotel_id = ? OR bt.to_hotel_id = ?';
+            $params = [$this->hotelId, $this->hotelId];
             if ($status !== 'all') {
-                $where .= " AND tr.status = ?";
+                $where  = '(' . $where . ') AND bt.status = ?';
                 $params[] = $status;
+            } else {
+                $where = '(' . $where . ')';
             }
             $stmt = $pdo->prepare(
-                "SELECT tr.*, b.booking_ref, b.guest_name,
-                        fr.room_number AS from_room, tor.room_number AS to_room
-                 FROM transfer_requests tr
-                 LEFT JOIN bookings b ON b.id = tr.booking_id
-                 LEFT JOIN rooms fr   ON fr.id = tr.from_room_id
-                 LEFT JOIN rooms tor  ON tor.id = tr.to_room_id
+                "SELECT bt.id, bt.booking_id, bt.reason, bt.status, bt.transfer_date,
+                        b.booking_ref, b.guest_name, b.guest_email,
+                        fh.name AS from_hotel, th.name AS to_hotel
+                 FROM booking_transfers bt
+                 LEFT JOIN bookings b  ON b.id  = bt.booking_id
+                 LEFT JOIN hotels  fh ON fh.id = bt.from_hotel_id
+                 LEFT JOIN hotels  th ON th.id = bt.to_hotel_id
                  WHERE {$where}
-                 ORDER BY tr.created_at DESC"
+                 ORDER BY bt.transfer_date DESC"
             );
             $stmt->execute($params);
             $transfers = $stmt->fetchAll();
 
-            // Pending count for badge
-            $ps = $pdo->prepare("SELECT COUNT(*) FROM transfer_requests WHERE hotel_id = ? AND status='pending'");
-            $ps->execute([$this->hotelId]);
-            $pendingCount = (int) $ps->fetchColumn();
+            // Pending badge count for this hotel
+            $ps = $pdo->prepare(
+                "SELECT COUNT(*) FROM booking_transfers
+                 WHERE (from_hotel_id=? OR to_hotel_id=?) AND status='pending'"
+            );
+            $ps->execute([$this->hotelId, $this->hotelId]);
+            $pendingCount = (int)$ps->fetchColumn();
         } catch (\Exception $e) {
             $transfers    = [];
             $pendingCount = 0;
@@ -400,6 +407,55 @@ class HotelController extends Controller {
         }
 
         $this->redirect('/hotel/settings');
+    }
+
+    // =============================================
+    // EXPORT (CSV)
+    // =============================================
+    public function exportBookings() {
+        $bookings = $this->bookingModel->allWithDetails(['hotel_id' => $this->hotelId, 'limit' => 5000]);
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="bookings_' . date('Y-m-d') . '.csv"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Booking Ref','Guest','Email','Phone','Room','Check-in','Check-out','Nights','Amount','Status']);
+        foreach ($bookings as $b) {
+            fputcsv($out, [
+                $b['booking_ref'] ?? '#'.$b['id'],
+                $b['guest_name']  ?? '',
+                $b['guest_email'] ?? '',
+                $b['guest_phone'] ?? '',
+                $b['room_number'] ?? '',
+                $b['check_in']    ?? '',
+                $b['check_out']   ?? '',
+                $b['nights']      ?? '',
+                $b['total_amount']?? '',
+                $b['status']      ?? '',
+            ]);
+        }
+        fclose($out); exit;
+    }
+
+    public function exportGuests() {
+        try {
+            $pdo  = $this->bookingModel->getPdo();
+            $stmt = $pdo->prepare(
+                "SELECT b.guest_name, b.guest_email, b.guest_phone,
+                        COUNT(b.id) AS stay_count, SUM(b.total_amount) AS total_spent, MAX(b.check_in) AS last_stay
+                 FROM bookings b WHERE b.hotel_id = ?
+                 GROUP BY b.guest_email, b.guest_name, b.guest_phone ORDER BY last_stay DESC"
+            );
+            $stmt->execute([$this->hotelId]);
+            $guests = $stmt->fetchAll();
+        } catch (\Exception $e) { $guests = []; }
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="guests_' . date('Y-m-d') . '.csv"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Guest Name','Email','Phone','Total Stays','Total Spent (INR)','Last Stay']);
+        foreach ($guests as $g) {
+            fputcsv($out, [$g['guest_name'],$g['guest_email'],$g['guest_phone'],$g['stay_count'],$g['total_spent'],$g['last_stay']]);
+        }
+        fclose($out); exit;
     }
 
     // =============================================

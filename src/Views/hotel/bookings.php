@@ -12,6 +12,9 @@ $statusBadge = [
         <h2>Hotel Bookings</h2>
         <p>Manage all reservations for <?= htmlspecialchars($_SESSION['hotel_name'] ?? 'your hotel') ?></p>
     </div>
+    <a href="<?= BASE_URL ?>/hotel/export/bookings" class="btn btn-light">
+        <i class="fa-solid fa-file-csv me-1"></i>Export CSV
+    </a>
 </div>
 
 <!-- STATUS FILTER TABS -->

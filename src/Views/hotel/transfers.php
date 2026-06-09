@@ -30,8 +30,8 @@
     <div class="card-body" style="padding:0;">
         <table class="table mb-0">
             <thead><tr>
-                <th>Booking</th><th>Guest</th><th>From Room</th>
-                <th>To Room</th><th>Reason</th><th>Status</th><th>Date</th>
+                <th>Booking</th><th>Guest</th><th>From Hotel</th>
+                <th>To Hotel</th><th>Reason</th><th>Status</th><th>Date</th>
             </tr></thead>
             <tbody>
             <?php if (empty($transfers)): ?>
@@ -50,19 +50,17 @@
                 <td><?= htmlspecialchars($t['guest_name'] ?? '—') ?></td>
                 <td>
                     <span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:600;">
-                        <?= htmlspecialchars($t['from_room'] ?? '—') ?>
+                        <?= htmlspecialchars($t['from_hotel'] ?? '—') ?>
                     </span>
                 </td>
                 <td>
                     <span style="background:#ecfdf5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:600;">
-                        <?= htmlspecialchars($t['to_room'] ?? '—') ?>
+                        <?= htmlspecialchars($t['to_hotel'] ?? '—') ?>
                     </span>
                 </td>
-                <td style="font-size:12px;color:var(--text-muted);max-width:160px;">
-                    <?= htmlspecialchars($t['reason'] ?? '—') ?>
-                </td>
+                <td style="font-size:12px;color:var(--text-muted);max-width:160px;"><?= htmlspecialchars($t['reason'] ?? '—') ?></td>
                 <td><span class="badge-pill <?= $bc ?>"><span class="dot"></span><?= ucfirst($t['status']) ?></span></td>
-                <td style="font-size:12px;color:var(--text-muted);"><?= isset($t['created_at']) ? date('d M Y', strtotime($t['created_at'])) : '—' ?></td>
+                <td style="font-size:12px;color:var(--text-muted);"><?= isset($t['transfer_date']) ? date('d M Y', strtotime($t['transfer_date'])) : '—' ?></td>
             </tr>
             <?php endforeach; endif; ?>
             </tbody>

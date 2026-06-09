@@ -1,10 +1,12 @@
-<?php $guests = $guests ?? []; ?>
 <div class="page-header">
     <div>
         <h2>Guest Management</h2>
         <p>All guests who have booked or stayed at your hotel</p>
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
+        <a href="<?= BASE_URL ?>/hotel/export/guests" class="btn btn-light">
+            <i class="fa-solid fa-file-csv me-1"></i>Export CSV
+        </a>
         <form method="GET" style="display:flex;gap:8px;">
             <input type="text" name="search" class="form-control"
                    value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"

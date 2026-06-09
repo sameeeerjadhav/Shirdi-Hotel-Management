@@ -70,6 +70,12 @@ $router->post('/admin/transfers/{id}/reject',     [AdminController::class, 'reje
 // Search
 $router->get('/admin/search', [AdminController::class, 'search']);
 
+// Audit Logs
+$router->get('/admin/audit-logs', [AdminController::class, 'auditLogs']);
+
+// Exports
+$router->get('/admin/export/bookings', [AdminController::class, 'exportBookings']);
+
 // Users Management
 use App\Controllers\UserController;
 $router->get('/admin/users',                  [UserController::class, 'index']);
@@ -111,6 +117,10 @@ $router->get('/hotel/transfers', [HotelController::class, 'transfers']);
 // Settings
 $router->get('/hotel/settings',  [HotelController::class, 'settings']);
 $router->post('/hotel/settings', [HotelController::class, 'updateSettings']);
+
+// Exports
+$router->get('/hotel/export/bookings', [HotelController::class, 'exportBookings']);
+$router->get('/hotel/export/guests',   [HotelController::class, 'exportGuests']);
 
 // =============================================
 // NOTIFICATIONS API

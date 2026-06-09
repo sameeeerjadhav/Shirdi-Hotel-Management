@@ -743,6 +743,7 @@ $__hotelLogoUrl= !empty($__layoutUser['hotel_logo']) ? BASE_URL . '/' . ltrim($_
     <div class="sidebar-section">Management</div>
     <ul class="nav flex-column">
         <li class="nav-item"><a class="nav-link <?= $isActive('/admin/users') ?>" href="<?= BASE_URL ?>/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+        <li class="nav-item"><a class="nav-link <?= $isActive('/admin/audit-logs') ?>" href="<?= BASE_URL ?>/admin/audit-logs"><i class="fa-solid fa-shield-halved"></i> Audit Logs</a></li>
     </ul>
     <?php elseif ($_SESSION['role_id'] == 2): // Hotel Admin ?>
     <div class="sidebar-section">Main</div>

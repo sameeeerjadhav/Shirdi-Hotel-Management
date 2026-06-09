@@ -357,4 +357,83 @@ class AdminController extends Controller {
     public function search() {
         return $this->view('admin/search', ['title' => 'Room Search - CHNMS']);
     }
+
+    // =============================================
+    // AUDIT LOGS
+    // =============================================
+    public function auditLogs() {
+        $search     = trim($_GET['search']      ?? '');
+        $actionType = trim($_GET['action_type'] ?? '');
+
+        try {
+            $pdo    = $this->bookingModel->getPdo();
+            $where  = '1=1';
+            $params = [];
+            if ($search) {
+                $where .= " AND (al.action LIKE ? OR u.name LIKE ? OR al.model LIKE ?)";
+                $s = '%'.$search.'%';
+                $params = array_merge($params, [$s,$s,$s]);
+            }
+            if ($actionType) {
+                $where .= " AND al.action = ?";
+                $params[] = $actionType;
+            }
+            $stmt = $pdo->prepare(
+                "SELECT al.*, u.name AS user_name
+                 FROM audit_logs al
+                 LEFT JOIN users u ON u.id = al.user_id
+                 WHERE {$where}
+                 ORDER BY al.created_at DESC
+                 LIMIT 200"
+            );
+            $stmt->execute($params);
+            $logs = $stmt->fetchAll();
+
+            // Stats
+            $total = (int)$pdo->query("SELECT COUNT(*) FROM audit_logs")->fetchColumn();
+            $today = (int)$pdo->query("SELECT COUNT(*) FROM audit_logs WHERE DATE(created_at)=CURDATE()")->fetchColumn();
+            $week  = (int)$pdo->query("SELECT COUNT(*) FROM audit_logs WHERE created_at >= DATE_SUB(NOW(),INTERVAL 7 DAY)")->fetchColumn();
+            $users = (int)$pdo->query("SELECT COUNT(DISTINCT user_id) FROM audit_logs WHERE created_at >= DATE_SUB(NOW(),INTERVAL 7 DAY)")->fetchColumn();
+        } catch (\Exception $e) {
+            $logs  = [];
+            $total = $today = $week = $users = 0;
+        }
+
+        return $this->view('admin/audit_logs', [
+            'title'       => 'Audit Logs - CHNMS',
+            'logs'        => $logs,
+            'totalLogs'   => $total,
+            'todayLogs'   => $today,
+            'weekLogs'    => $week,
+            'activeUsers' => $users,
+        ]);
+    }
+
+    // =============================================
+    // EXPORT (CSV)
+    // =============================================
+    public function exportBookings() {
+        $bookings = $this->bookingModel->allWithDetails(['limit' => 5000]);
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="bookings_' . date('Y-m-d') . '.csv"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Booking Ref','Guest Name','Email','Hotel','Room','Check-in','Check-out','Nights','Amount','Status','Date']);
+        foreach ($bookings as $b) {
+            fputcsv($out, [
+                $b['booking_ref'] ?? '#'.$b['id'],
+                $b['guest_name'] ?? '',
+                $b['guest_email'] ?? '',
+                $b['hotel_name'] ?? '',
+                $b['room_number'] ?? '',
+                $b['check_in'] ?? '',
+                $b['check_out'] ?? '',
+                $b['nights'] ?? '',
+                $b['total_amount'] ?? '',
+                $b['status'] ?? '',
+                isset($b['created_at']) ? date('d M Y', strtotime($b['created_at'])) : '',
+            ]);
+        }
+        fclose($out);
+        exit;
+    }
 }
