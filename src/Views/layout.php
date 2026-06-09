@@ -651,8 +651,25 @@
         .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
     </style>
 </head>
+<body>
 
 <?php if (isset($_SESSION['user_id'])): ?>
+<?php
+// Fetch current user's avatar for topbar — lightweight query
+if (!isset($user) || !is_array($user)) {
+    try {
+        $__db   = \Core\Database::getInstance()->getConnection();
+        $__stmt = $__db->prepare("SELECT avatar FROM users WHERE id = ? LIMIT 1");
+        $__stmt->execute([$_SESSION['user_id']]);
+        $__layoutUser = $__stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (\Exception $e) {
+        $__layoutUser = [];
+    }
+} else {
+    $__layoutUser = $user;
+}
+$__avatarUrl = !empty($__layoutUser['avatar']) ? BASE_URL . '/' . ltrim($__layoutUser['avatar'], '/') : null;
+?>
 <!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-logo">
@@ -720,8 +737,13 @@
 
             <!-- USER DROPDOWN -->
             <div class="user-dropdown" id="userDropdown">
+                <?php
+                $_topbarAvatar = $__avatarUrl
+                    ? '<img src="' . htmlspecialchars($__avatarUrl) . '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">'
+                    : '<div class="avatar">' . strtoupper(substr($_SESSION['name'], 0, 1)) . '</div>';
+                ?>
                 <div class="user-chip" onclick="toggleUserMenu()" id="userChipBtn">
-                    <div class="avatar"><?= strtoupper(substr($_SESSION['name'], 0, 1)) ?></div>
+                    <?= $_topbarAvatar ?>
                     <div>
                         <div class="user-chip-name"><?= htmlspecialchars($_SESSION['name']) ?></div>
                         <div class="user-chip-role"><?= $_SESSION['role_id'] == 1 ? 'Super Admin' : ($_SESSION['hotel_name'] ?? 'Hotel Admin') ?></div>
@@ -734,9 +756,14 @@
                     <!-- User Info Header -->
                     <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9;">
                         <div style="display:flex;align-items:center;gap:12px;">
-                            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#4338ca,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;flex-shrink:0;">
+                            <?php if ($__avatarUrl): ?>
+                            <img src="<?= htmlspecialchars($__avatarUrl) ?>"
+                                 style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #e8ecf0;">
+                            <?php else: ?>
+                            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;flex-shrink:0;">
                                 <?= strtoupper(substr($_SESSION['name'], 0, 1)) ?>
                             </div>
+                            <?php endif; ?>
                             <div>
                                 <div style="font-size:14px;font-weight:800;color:#1e293b;"><?= htmlspecialchars($_SESSION['name']) ?></div>
                                 <div style="font-size:12px;color:#94a3b8;margin-top:1px;"><?= $_SESSION['role_id'] == 1 ? 'Super Admin' : ($_SESSION['hotel_name'] ?? 'Hotel Admin') ?></div>
