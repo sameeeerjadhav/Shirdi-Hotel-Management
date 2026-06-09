@@ -77,10 +77,14 @@
             flex-shrink: 0;
         }
         .logo-text {
-            font-size: 17px; font-weight: 800;
+            font-size: 15px; font-weight: 800;
             color: var(--text-heading);
             letter-spacing: -0.03em;
             line-height: 1.1;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .logo-text span {
             color: var(--primary);
@@ -655,26 +659,64 @@
 
 <?php if (isset($_SESSION['user_id'])): ?>
 <?php
-// Fetch current user's avatar for topbar — lightweight query
+// Fetch current user's avatar + hotel logo for sidebar/topbar
 if (!isset($user) || !is_array($user)) {
     try {
         $__db   = \Core\Database::getInstance()->getConnection();
-        $__stmt = $__db->prepare("SELECT avatar FROM users WHERE id = ? LIMIT 1");
+        // Single query: user avatar + hotel logo (via LEFT JOIN for hotel admins)
+        $__stmt = $__db->prepare(
+            "SELECT u.avatar, h.cover_image AS hotel_logo
+             FROM users u
+             LEFT JOIN hotels h ON h.admin_user_id = u.id
+             WHERE u.id = ? LIMIT 1"
+        );
         $__stmt->execute([$_SESSION['user_id']]);
         $__layoutUser = $__stmt->fetch(PDO::FETCH_ASSOC);
     } catch (\Exception $e) {
         $__layoutUser = [];
     }
 } else {
+    // When $user is already loaded by controller, supplement hotel logo if missing
     $__layoutUser = $user;
+    if (empty($__layoutUser['hotel_logo']) && $_SESSION['role_id'] == 2) {
+        try {
+            $__db2   = \Core\Database::getInstance()->getConnection();
+            $__stmt2 = $__db2->prepare("SELECT cover_image AS hotel_logo FROM hotels WHERE admin_user_id = ? LIMIT 1");
+            $__stmt2->execute([$_SESSION['user_id']]);
+            $__row2  = $__stmt2->fetch(PDO::FETCH_ASSOC);
+            if ($__row2) $__layoutUser['hotel_logo'] = $__row2['hotel_logo'];
+        } catch (\Exception $e) {}
+    }
 }
-$__avatarUrl = !empty($__layoutUser['avatar']) ? BASE_URL . '/' . ltrim($__layoutUser['avatar'], '/') : null;
+$__avatarUrl   = !empty($__layoutUser['avatar'])     ? BASE_URL . '/' . ltrim($__layoutUser['avatar'], '/')     : null;
+$__hotelLogoUrl= !empty($__layoutUser['hotel_logo']) ? BASE_URL . '/' . ltrim($__layoutUser['hotel_logo'], '/') : null;
 ?>
 <!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-logo">
+    <?php if ($_SESSION['role_id'] == 2 && $__hotelLogoUrl): ?>
+        <!-- Hotel Logo: uploaded image -->
+        <img src="<?= htmlspecialchars($__hotelLogoUrl) ?>"
+             style="width:34px;height:34px;border-radius:9px;object-fit:contain;background:#f8fafc;border:1px solid #e8ecf0;flex-shrink:0;"
+             alt="Hotel Logo">
+        <div class="logo-text">
+            <?= htmlspecialchars($_SESSION['hotel_name'] ?? 'Hotel') ?>
+            <span>Hotel Partner</span>
+        </div>
+    <?php elseif ($_SESSION['role_id'] == 2): ?>
+        <!-- Hotel Admin: no logo yet — show hotel icon placeholder -->
+        <div class="logo-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">
+            <i class="fa-solid fa-hotel"></i>
+        </div>
+        <div class="logo-text">
+            <?= htmlspecialchars($_SESSION['hotel_name'] ?? 'Hotel') ?>
+            <span>Hotel Partner</span>
+        </div>
+    <?php else: ?>
+        <!-- Super Admin: brand logo -->
         <div class="logo-icon"><i class="fa-solid fa-hotel"></i></div>
         <div class="logo-text">CH<span>NMS</span></div>
+    <?php endif; ?>
     </div>
 
     <?php
